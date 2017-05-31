@@ -1,18 +1,25 @@
 # simple-cart
 
-> A Vue.js project
+> A complete webserver + shopping cart setup
 
-## Build Setup
+> Made for developers looking to setup simple shop pages quickly on virtual private servers without any SAAS fees or bloated CMS. 
+
+    Webserver = node + express
+    Database = nedb
+    Front end = vue + vuex + vue-router
+    Style = vue-material
+    email = sendmail
+    payments = stripe
+
+## Commands
 
 ``` bash
 # install dependencies
 npm install
 
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
+# build with webpack
 npm run build
-```
 
-For detailed explanation on how things work, consult the [docs for vue-loader](http://vuejs.github.io/vue-loader).
+# run the server
+node server.js
+```
