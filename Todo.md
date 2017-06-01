@@ -13,6 +13,7 @@ deploy test server to vps
 #low
 
 update readme
+- config
 
 setup tutorial video
 

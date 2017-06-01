@@ -1,8 +1,8 @@
 # simple-cart
 
-> A complete webserver + shopping cart setup
+##under development (see Todo.md)
 
-> Made for developers looking to setup simple shop pages quickly on virtual private servers without any SAAS fees or bloated CMS. 
+> A tiny webserver + shopping cart for developers looking to setup simple shop pages quickly on virtual private servers without any SAAS fees or bloated CMS. 
 
     Webserver = node + express
     Database = nedb
