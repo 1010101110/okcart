@@ -1,6 +1,6 @@
 # Ok Cart
 
-#under development (see Todo.md)
+# under development (see Todo.md)
 
 > A tiny webserver + shopping cart for developers looking to setup simple shop pages quickly on virtual private servers without any SAAS fees or bloated CMS. 
 
