@@ -3,11 +3,11 @@
         <h3>Order Details</h3>
         <div id="order">
         <v-layout row wrap>
-            <v-flex xs8>
+            <v-flex xs12 sm8>
                 Order# {{order._id}}<br>
                 Ordered On: {{new Date(order.created*1000).toDateString()}}
             </v-flex>
-            <v-flex class="hidden-xs-only" xs4 class="text-cs-right">
+            <v-flex sm4 class="hidden-xs-only">
                 <v-btn icon v-on:click.native="window.print()"><v-icon>print</v-icon></v-btn>
             </v-flex>
             <v-flex xs12 sm4>
