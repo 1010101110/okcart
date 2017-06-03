@@ -78,12 +78,12 @@ server.get('/orders', function (request, response) {
 
 //
 server.post('/checkout', function (request, response) {    
-    // Charge the user's card:
+    // Create+Send Stripe Charge (see stripe api)
     var charge = stripe.charges.create({
-        amount: request.body.subtotal,
+        amount: request.body.total,
         currency: "usd",
-        description: "Order #test????",
-        source: request.body.token.id,
+        description: request.body.email + " order from " + "mystore",
+        source: request.body.token.id
     }, function(err, charge) {
         if(err){
             switch(err.type){
@@ -94,6 +94,11 @@ server.post('/checkout', function (request, response) {
                 break;
             }       
         }else{
+            //add our cart information to the charge 
+            //(stripe complains if we do this first as it is not part of their api)
+            charge.cart = request.body.cart;
+            charge.address = request.body.address;
+
             orders.insert(charge,function(err,newOrder){
                 if(err){
                     //pass error to client
@@ -107,22 +112,38 @@ server.post('/checkout', function (request, response) {
                                 console.log('error updating products after checkout')
                                 console.log(err);
                             }else{                            
-                                console.log('new stock for '+doc._id + ': ');
-                                console.log(doc.stock-element.quantity)
                                 products.update({_id:element._id}, {$set: {stock:doc.stock-element.quantity}},{},function(){})
                             }
                         })                        
                     }, this);
 
                     //pass completed order back to client
-                    response.json({order:newOrder});
+                    response.json({order:newOrder});                    
+                    
+                    //plaintext email (incase user has html mail disabled?)
+                    var emailtext = 'Thanks for your order! \n \n '
+                         + newOrder.address.name +'\n'
+                         + newOrder.address.street +'\n'
+                         + newOrder.address.apt +'\n'
+                         + newOrder.address.city +'\n'
+                         + newOrder.address.state +'\n'
+                         + newOrder.address.zip +'\n \n';
+                    newOrder.cart.forEach(function(element) {
+                        emailtext += (element.quantity + 'x ' + element.name + ' '  + (element.price * 100) + '\n');
+                    }, this);
+                    emailtext += '\n \n';
+                    emailtext += 'Total: ' + (newOrder.amount * 100);
 
-                    //email confirmation
+                    //html email
+                    var emailhtml = '';
+
+                    //send email confirmation
                     sendmail({
-                        from: 'no-reply@yourdomain.com',
-                        to: request.body.email,
-                        subject: 'test sendmail',
-                        html: 'Mail of test sendmail <br> <h1>HI MOM</h1>',
+                        from: 'no-reply@mystore.com',
+                        to: newOrder.email,
+                        subject: 'Your ' + 'mystore' + 'order',
+                        text:emailtext,
+                        html:emailhtml
                     }, function(err, reply) {
                         console.log(err && err.stack);
                     });

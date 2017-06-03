@@ -1,99 +1,73 @@
 <template>
     <div :key="ct_view">
-        <md-tabs class="md-transparent">
         <div v-if="cartIsEmpty">
-            <md-tab md-label="Cart" md-icon="shopping_cart">
-                <span class="md-title">Your Cart is Empty</span>
-            </md-tab>
+            <h1>your cart is empty</h1>
         </div>
         <div v-else>
-            <md-tab md-label="Cart" md-icon="shopping_cart">
-                <md-list>
-                    <md-list-item v-for="(item,index) in cart" v-bind:item="item" v-bind:index="index" v-bind:key="item._id">
-                        <md-avatar class="md-large">
-                            <img :src="item.image" :alt="item.name">
-                        </md-avatar>
-                        <div class="md-list-text-container">
-                            <span>
-                                {{item.name}} $ {{ item.price / 100 }}
-                            </span>
-                            <span>                                            
-                                <md-button class="md-icon-button md-dense" v-on:click.native="addcartitem(item)">
-                                    <md-icon>add</md-icon>
-                                </md-button>
-                                <span class="qty">{{item.quantity}}</span>
-                                <md-button class="md-icon-button md-dense" v-on:click.native="removecartitem(item)">
-                                    <md-icon>remove</md-icon>
-                                </md-button>
-                            </span>
-                        </div>
-                        <md-button class="md-icon-button md-list-action" v-on:click.native="deletecartitem(item)"><md-icon>delete</md-icon></md-button>
-                        <md-divider class="md-inset"></md-divider>
-                    </md-list-item>
-                    <md-list-item>
-                        <span>Subtotal: {{cartSubTotal}}</span>
-                    </md-list-item>
-                </md-list>
-            </md-tab>
-            <md-tab md-label="Shipping" md-icon="local_shipping">
-                <md-input-container :class="{'md-input-invalid': errors.has('email')}">
-                    <md-icon>email</md-icon>
-                    <label>Email</label>
-                    <md-input type="email" v-model="email" name="email" v-validate data-vv-name="email" data-vv-rules="required|email" autocomplete="email"></md-input>
-                </md-input-container>
-                <md-input-container :class="{'md-input-invalid': errors.has('name')}">
-                    <md-icon>person</md-icon>
-                    <label>Name</label>
-                    <md-input type="text" v-model="name" name="name" v-validate data-vv-name="name" data-vv-rules="required" autocomplete="name"></md-input>
-                </md-input-container>
-                <md-input-container :class="{'md-input-invalid': errors.has('street')}">
-                    <md-icon>home</md-icon>
-                    <label>Street</label>
-                    <md-input type="text" v-model="street" name="street" v-validate data-vv-name="street" data-vv-rules="required" autocomplete="shipping address-line1"></md-input>
-                </md-input-container>
-                <md-input-container>
-                    <md-icon>home</md-icon>
-                    <label>Apt/Unit</label>
-                    <md-input v-model="apt" type="text" autocomplete="shipping address-line2"></md-input>
-                </md-input-container>
-                <md-input-container :class="{'md-input-invalid': errors.has('city')}">
-                    <md-icon>location_city</md-icon>
-                    <label>City</label>
-                    <md-input type="text" v-model="city" name="city" v-validate data-vv-name="city" data-vv-rules="required" autocomplete="shipping address-level2"></md-input>
-                </md-input-container>
-                <md-input-container :class="{'md-input-invalid': errors.has('state')}">
-                    <md-icon>landscape</md-icon>
-                    <label>State</label>
-                    <md-input type="text" v-model="state" name="state" v-validate data-vv-name="state" data-vv-rules="required" autocomplete="shipping address-level1"></md-input>
-                </md-input-container>
-                <md-input-container :class="{'md-input-invalid': errors.has('zip')}">
-                    <md-icon>casino</md-icon>
-                    <label>Zip</label>
-                    <md-input type="text" v-model="zip" name="zip" v-validate data-vv-name="zip" data-vv-rules="required" autocomplete="shipping postal-code"></md-input>
-                </md-input-container>
-            </md-tab>
-            <md-tab md-label="Payment" md-icon="credit_card">
-                <div class="ccinput">
-                    <label for="card-element">
-                    Credit or debit card
-                    </label>
-                    <div id="card-element">
-                    <!-- a Stripe Element will be inserted here. -->
-                    </div>                            
-                </div>
-                <div class="ccinput">
-                    <div id="card-errors" role="alert"></div>
-                    <p class="form-errors" v-for="err in errors.all()">{{err}}</p>
-                </div>                            
-                <div class="ccinput">
+            <v-stepper v-model="step">
+                <v-stepper-header>
+                    <v-stepper-step step="1" :complete="step > 1" editable>Cart</v-stepper-step>
+                    <v-divider></v-divider>
+                    <v-stepper-step step="2" :complete="step > 2" editable>Shipping</v-stepper-step>
+                    <v-divider></v-divider>
+                    <v-stepper-step step="3" editable>Payment</v-stepper-step>
+                </v-stepper-header>
+                <v-stepper-content step="1">
+                    <v-card horizontal class="ma-3" v-for="(item,index) in cart" v-bind:item="item" v-bind:index="index" v-bind:key="item._id">
+                        <v-card-column class="grey lighten-4">
+                            <v-card-row>
+                                <v-spacer></v-spacer>
+                                <v-card-text class="text-xs-right">
+                                    <strong>{{item.name}}</strong>
+                                    <div>
+                                        {{item.price/100}}<br>
+                                        <v-btn icon @click.native="addcartitem(item)"><v-icon>add</v-icon></v-btn>
+                                        {{item.quantity}}
+                                        <v-btn icon @click.native="removecartitem(item)"><v-icon>remove</v-icon></v-btn>
+                                    </div>
+                                </v-card-text>
+                            </v-card-row>
+                        </v-card-column>
+                        <v-card-row :img="item.image[0]" height="125px"></v-card-row>
+                    </v-card>
+                    Subtotal: {{cartSubTotal}}<br>
+                    <v-btn primary @click.native="step = 2" light>Continue</v-btn>
+                </v-stepper-content>
+                <v-stepper-content step="2">
+                    <v-text-field type="email" v-model="email" error name="email" v-validate data-vv-name="email" data-vv-rules="required|email" autocomplete="email" label="email" single-line prepend-icon="email"></v-text-field>
+                    <v-text-field type="text" v-model="name" name="name" v-validate data-vv-name="name" data-vv-rules="required" autocomplete="name" label="full name" single-line prepend-icon="person"></v-text-field>
+                    <v-text-field type="text" v-model="street" name="street" v-validate data-vv-name="street" data-vv-rules="required" autocomplete="shipping address-line1" label="street" single-line prepend-icon="home"></v-text-field>
+                    <v-text-field type="text" v-model="apt" autocomplete="shipping address-line2" label="apt/unit" single-line prepend-icon="home"></v-text-field>
+                    <v-text-field type="text" v-model="city" name="city" v-validate data-vv-name="city" data-vv-rules="required" autocomplete="shipping address-level2" label="city" single-line prepend-icon="location_city"></v-text-field>
+                    <v-text-field type="text" v-model="state" name="state" v-validate data-vv-name="state" data-vv-rules="required" autocomplete="shipping address-level1" label="state" single-line prepend-icon="landscape"></v-text-field>
+                    <v-text-field type="text" v-model="zip" name="zip" v-validate data-vv-name="zip" data-vv-rules="required" autocomplete="shipping postal-code" label="zip" single-line prepend-icon="explore"></v-text-field>
+                    <!--
+                        per vuetify there will be a new field for forms(waiting for new component 6/2/2017)
+                        autocomplete and validation is broken
+                        errors.has('field')
+                    -->
+                    <v-btn primary @click.native="step = 3" light>Continue</v-btn>
+                </v-stepper-content>
+                <v-stepper-content step="3">
+                    <div class="ccinput">
+                        <label for="card-element">
+                            Credit or debit card
+                        </label>
+                        <div id="card-element">
+                            <!-- a Stripe Element will be inserted here. -->
+                        </div>                            
+                    </div>
+                    <div class="ccinput">
+                        <div id="card-errors" role="alert"></div>
+                        <p class="form-errors" v-for="err in errors.all()">{{err}}</p>
+                    </div>     
                     <transition name="fade" mode="out-in">
-                        <md-button v-if="!cartloading" class="md-primary md-raised"  v-on:click.native="checkout()">Pay {{cartSubTotal}}</md-button>
-                        <md-spinner v-else md-indeterminate class="md-accent"></md-spinner>
+                        <v-btn primary light @click.native="checkout()" v-if="!cartloading">Place Order</v-btn>
+                        <v-progress-circular indeterminate primary v-bind:size="70" v-else></v-progress-circular>
                     </transition>
-                </div>
-            </md-tab>                    
+                </v-stepper-content>
+            </v-stepper>
         </div>
-        </md-tabs>
     </div>
 </template>
 
@@ -128,6 +102,7 @@ export default {
   name: 'cart',
   data: function(){ 
         return {
+            step:1,
             email:"",
             name:"",
             street:"",
@@ -157,6 +132,9 @@ export default {
     },
     cartloading: ()=>{
         return store.getters.cartloading;
+    },
+    emailval: ()=>{
+        return errors.first('email');
     }
   },
   methods:{
@@ -185,6 +163,7 @@ export default {
                         token:result.token,
                         email:this.email,
                         address:{
+                            name:this.name,
                             street:this.street,
                             apt:this.apt,
                             city:this.city,
@@ -205,10 +184,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.qty {
-    display: inline-block;
-    padding-top: 9px;
-}
 .ccinput {
     width:100%;
     min-width: 300px;
@@ -221,8 +196,5 @@ export default {
 }
 .form-errors {
     color: #eb1c26;
-}
-.md-tab {
-    max-width: 800px;
 }
 </style>

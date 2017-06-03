@@ -1,19 +1,20 @@
 <template>
-  <div>
-    <md-whiteframe md-elevation="2" id="main-header">
-      <md-toolbar>
-          <h2 class="md-title" style="flex: 1"><router-link to="/">{{title}}</router-link></h2>
-          <router-link to="/cart" class="md-button">
-            <md-icon>shopping_cart</md-icon>{{cartQuantity}}
-          </router-link>
-      </md-toolbar>
-    </md-whiteframe>
-    <div id="page-content">
+  <v-app>
+    <v-toolbar light>
+      <v-toolbar-title><router-link class="white--text" to="/">{{title}}</router-link></v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn icon light v-on:click.native="$router.push('/cart')">
+        <v-icon class="white--text">shopping_cart</v-icon>{{cartQuantity}}
+      </v-btn>
+    </v-toolbar>
+    <main>
+      <v-container fluid>
         <transition name="fade" mode="out-in">
           <router-view></router-view>
         </transition>
-    </div>
-  </div>
+      </v-container>
+    </main>
+  </v-app>
 </template>
 
 <script>
@@ -38,21 +39,9 @@ export default {
 </script>
 
 <style>
-#page-content {
-    padding: 64px 10px 10px 10px;
-    text-align: center;
+.toolbar a{
+  text-decoration: none;
 }
-#main-header {
-    z-index: 999;
-    color: #fff !important;
-    position: fixed;
-    width: 100%;
-}
-#main-header a{
-    text-decoration: none;
-    color: inherit;
-}
-
 /*fade effect for page switching*/
 .fade-leave-active {
   transition: opacity .2s
@@ -62,10 +51,5 @@ export default {
 }
 .fade-enter, .fade-leave-to {
   opacity: 0
-}
-
-/*bugfix for icon button in tablecell*/
-.md-table .md-table-cell .md-button .md-icon{
-    margin:auto !important;
 }
 </style>

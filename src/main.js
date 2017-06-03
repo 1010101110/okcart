@@ -50,16 +50,9 @@ export const router = new Router({
 import {sync} from 'vuex-router-sync'
 sync(store,router)
 
-//VueMaterial
-import VueMaterial from 'vue-material'
-Vue.use(VueMaterial)
-//vuematerial theme colors
-Vue.material.registerTheme('default', {
-    primary: 'blue',
-    accent: 'red',
-    warn: 'red',
-    background: 'white'
-});
+//Vuetify
+import Vuetify from 'vuetify'
+Vue.use(Vuetify)
 
 //veevalidate
 import VeeValidate from 'vee-validate';

@@ -53,6 +53,9 @@ const store = new Vuex.Store({
             }
             return state.currency.format(subtotal/100);
         },
+        orderTotal:(state,getters)=>{
+            return state.currency.format(state.order.amount/100);
+        },
         cartloading:(state,getters)=>{
             return state.loading;
         },
@@ -157,7 +160,7 @@ const store = new Vuex.Store({
             //checkout data            
             const postdata = {
                 cart:  state.cart,
-                subtotal: 1111,
+                total: 1111,
                 token: payload.token,
                 email: payload.email,
                 address: payload.address
@@ -177,8 +180,8 @@ const store = new Vuex.Store({
                     console.log(response)
                 }
             },function(response){
-                //http error
-                console.log(response.statusText)
+                //error of some kind
+                console.log(response)
             }).then(function(){               
                 commit('setloading',false);
             });            

@@ -18,6 +18,7 @@
     "vue-material": "*",
     "vue-resource": "*",
     "vue-router": "*",
+    "vuetify": "*",
     "vuex": "*",
     "vuex-router-sync": "*"
   },
@@ -32,5 +33,10 @@
     "vue-template-compiler": "^2.2.1",
     "webpack": "^2.2.0",
     "webpack-dev-server": "^2.2.0"
+  },
+  "eslintConfig": {
+    "globals": {
+      "window": true
+    }
   }
 }
