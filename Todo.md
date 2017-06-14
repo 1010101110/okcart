@@ -1,28 +1,38 @@
-#TODO
+# TODO
 
-localstorage hold the cart
-
-order view 
+localstorage hold the cart?
 
 order email
 
-add country to shipping address
+order total 
 
-add country limit?
+shipping{
+    add country to shipping address
 
-add state, country dropdowns
+    add country limit?
 
-add shipping per item. calc shipping charges in cart, show on order.
+    add state, country dropdowns
+
+    add shipping per item. calc shipping charges in cart, show on order.
+}
 
 abstract settings to separate file
 
 deploy test server to vps
 
-#low
+backend{
+    authentication
+    orders
+        set order status (email update)
+    products
+    settings? 
+}
+
+# low
 
 update readme
 - config
 
 setup tutorial video
 
-check vue-material for md-tab tab issue #716
+check vuetify for autocomplete fields
