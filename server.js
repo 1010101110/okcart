@@ -1,8 +1,13 @@
 'use strict'
 
-//node utilities
+// =========Node packages=========
+
+//file path
 var fs = require('fs');
 var path = require('path');
+
+//password hash
+var bcrypt = require('bcrypt');
 
 //email
 const sendmail = require('sendmail')();
@@ -12,6 +17,7 @@ var http = require('http');
 
 //https server
 var https = require('https');
+//you should get your certs from lets encrypt once you have your domain setup
 var privateKey = fs.readFileSync(path.join(__dirname, '/cert/server.key'), 'utf8');
 var certificate = fs.readFileSync(path.join(__dirname, '/cert/server.crt'), 'utf8');
 var credentials = { key: privateKey, cert: certificate, passphrase:'monki' };
@@ -33,12 +39,14 @@ server.use(bodyParser.json());
 //stripe for payment processing
 var stripe = require('stripe')("sk_test_AbLFTbzSIGCoNxJwixfU8OgG");
 
+// =========Server Routes=========
+
 //https redirect
 server.all('*', function (req, res, next){
    return req.secure ? next() : res.redirect('https://' + req.hostname + req.url);
 });
 
-// Serve files from the assets + dist directory
+// Serve static files from the assets + dist directory
 server.use('/assets', express.static(
     path.resolve(__dirname, 'assets')
 ));
@@ -46,12 +54,9 @@ server.use('/dist', express.static(
     path.resolve(__dirname, 'dist')
 ));
 
-//=========API=========
 //settings
 server.get('/settings', function (req, res) {
-    res.end(JSON.stringify({
-        title: "mystore"
-    }));
+    res.end(require("config.json"));
 });
 
 //return json products find from database
@@ -76,7 +81,7 @@ server.get('/orders', function (request, response) {
 
 })
 
-//
+//create order
 server.post('/checkout', function (request, response) {    
     // Create+Send Stripe Charge (see stripe api)
     var charge = stripe.charges.create({
@@ -151,8 +156,22 @@ server.post('/checkout', function (request, response) {
             })            
         }
     });
-
 })
+
+//Authentication for backend
+server.get('/auth', function (request, response) {    
+    //use bcrypt.hash to generate your own password and store the hash here
+    //if you ever forget your password you will have to redo this step
+    //we store this here as a local variable and never reference it again to keep it secure
+    var mypass = "$2a$10$1hFcepwZlTmpmrM.QTvZtuczVJswgTUG8pn9nlidS39rEJ/aK7U2.";
+    bcrypt.compare(request.query.pass,mypass,function(err,res){
+        if(res){
+            response.end("good")
+        }else{
+            response.end("fail")
+        }
+    })    
+});
 
 // =========Vue App Route=========
 //this lets vue router handle all other routes on the client (only above routes go to the server)
@@ -165,7 +184,6 @@ http.createServer(server).listen(80, function (err) {
     if (err) throw err;
     console.log('started http server')
 });
-//need to get ssl cert from lets encrypt
 https.createServer(credentials, server).listen(443, function (err) {
    if (err) throw err;
    console.log('started https server')
