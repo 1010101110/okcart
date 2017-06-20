@@ -1,14 +1,14 @@
 <template>
     <div :key="ct_view">
         <div v-if="cartIsEmpty">
-            <h1>your cart is empty</h1>
+            <h3 class="text-xs-center">your cart is empty</h3>
         </div>
         <div v-else>
             <v-stepper v-model="step">
                 <v-stepper-header>
-                    <v-stepper-step step="1" :complete="step > 1" editable>Cart</v-stepper-step>
+                    <v-stepper-step step="1" :complete="step > 1" editable>Items</v-stepper-step>
                     <v-divider></v-divider>
-                    <v-stepper-step step="2" :complete="step > 2" editable>Shipping</v-stepper-step>
+                    <v-stepper-step step="2" :complete="step > 2" editable>Address</v-stepper-step>
                     <v-divider></v-divider>
                     <v-stepper-step step="3" editable>Payment</v-stepper-step>
                 </v-stepper-header>
@@ -30,7 +30,20 @@
                         </v-card-column>
                         <v-card-row :img="item.image[0]" height="125px"></v-card-row>
                     </v-card>
-                    Subtotal: {{cartSubTotal}}<br>
+                    <v-card horizontal class="ma-3">
+                        <v-card-column class="grey lighten-4">
+                            <v-card-row>
+                                <v-spacer></v-spacer>
+                                <v-card-text class="text-xs-right">
+                                    Subtotal: {{cartSubTotal}}<br>        
+                                    Shipping: {{cartShipping}}<br>
+                                    <strong>Total: {{total}}</strong>
+                                </v-card-text>
+                            </v-card-row>
+                        </v-card-column>
+                        <v-card-row height="125px" class="grey lighten-4"></v-card-row>
+                    </v-card>
+                    
                     <v-btn primary @click.native="step = 2" light>Continue</v-btn>
                 </v-stepper-content>
                 <v-stepper-content step="2">
@@ -40,6 +53,7 @@
                     <v-text-field type="text" v-model="apt" autocomplete="shipping address-line2" label="apt/unit" single-line prepend-icon="home"></v-text-field>
                     <v-text-field type="text" v-model="city" name="city" v-validate data-vv-name="city" data-vv-rules="required" autocomplete="shipping address-level2" label="city" single-line prepend-icon="location_city"></v-text-field>
                     <v-text-field type="text" v-model="state" name="state" v-validate data-vv-name="state" data-vv-rules="required" autocomplete="shipping address-level1" label="state" single-line prepend-icon="landscape"></v-text-field>
+                    <v-text-field type="text" v-model="country" name="country" v-validate data-vv-name="country" data-vv-rules="required" autocomplete="shipping country" label="country" single-line prepend-icon="public"></v-text-field>
                     <v-text-field type="text" v-model="zip" name="zip" v-validate data-vv-name="zip" data-vv-rules="required" autocomplete="shipping postal-code" label="zip" single-line prepend-icon="explore"></v-text-field>
                     <!--
                         per vuetify there will be a new field for forms(waiting for new component 6/2/2017)
@@ -60,7 +74,7 @@
                     <div class="ccinput">
                         <div id="card-errors" role="alert"></div>
                         <p class="form-errors" v-for="err in errors.all()">{{err}}</p>
-                    </div>     
+                    </div>
                     <transition name="fade" mode="out-in">
                         <v-btn primary light @click.native="checkout()" v-if="!cartloading">Place Order</v-btn>
                         <v-progress-circular indeterminate primary v-bind:size="70" v-else></v-progress-circular>
@@ -109,7 +123,8 @@ export default {
             apt:"",
             city:"",
             state:"",
-            zip:""
+            zip:"",
+            country:""
         }
     },
   mounted:()=>{    
@@ -131,10 +146,16 @@ export default {
         return store.getters.cartSubTotal;
     },
     cartloading: ()=>{
-        return store.getters.cartloading;
+        return store.getters.loading;
     },
     emailval: ()=>{
         return errors.first('email');
+    },
+    total: ()=>{
+        return store.getters.cartTotal;
+    },
+    cartShipping: ()=>{
+        return store.getters.cartShipping;
     }
   },
   methods:{
@@ -168,7 +189,8 @@ export default {
                             apt:this.apt,
                             city:this.city,
                             state:this.state,
-                            zip:this.zip
+                            zip:this.zip,
+                            country:this.country
                         }
                     });
                 }

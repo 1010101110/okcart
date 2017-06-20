@@ -10,7 +10,7 @@
                     </v-card-row>
                     <v-card-row :img="item.image" height="200px"></v-card-row>
                     <v-card-row actions class="grey lighten-4 mt-0">
-                        <span>{{item.stock > 0 ? "$ "+ item.price/100 : "out of stock"}}</span>
+                        <span>{{item.stock > 0 ? formatPrice(item.price) : "out of stock"}}</span>
                         <v-spacer></v-spacer>
                         <v-btn primary light v-on:click.native="additemtocart(item)" :disabled="item.stock > 0 ? false:true">add to cart</v-btn>
                     </v-card-row>
@@ -27,12 +27,15 @@ export default {
   name: 'ProductList',
   computed:{
       products: ()=>{
-          return store.getters.products;
+        return store.getters.products;
       }
   },
   methods:{
       additemtocart(item){
-          store.commit('additemtocart',item);
+        store.commit('additemtocart',item);
+      },
+      formatPrice(i){
+        return store.getters.currency.format(i/100);
       }
   }
 }

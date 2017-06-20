@@ -15,7 +15,7 @@
                         {{item.description}}
                     </v-card-text>
                     <v-card-row actions class="grey lighten-4 mt-0">
-                        <span>{{item.stock > 0 ? "$ "+ item.price/100 : "out of stock"}}</span>
+                        <span>{{item.stock > 0 ? formatPrice(item.price) : "out of stock"}}</span>
                         <v-spacer></v-spacer>
                         <v-btn v-on:click.native="additemtocart(item)" :disabled="item.stock > 0 ? false:true">add to cart</v-btn>
                     </v-card-row>
@@ -32,12 +32,15 @@ export default {
     name: 'ProductView',
     computed:{
         item:()=>{
-            return store.getters.product
+            return store.getters.product;
         }
     },
     methods:{
       additemtocart(item){
           store.commit('additemtocart',item);
+      },
+      formatPrice(i){
+        return store.getters.currency.format(i/100);
       }
     }
 }

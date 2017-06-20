@@ -32,7 +32,7 @@
                 </p>
             </v-flex>
             <v-flex xs12>
-                <v-card horizontal class="ma-3" v-for="(item,index) in order.cart" v-bind:item="item" v-bind:index="index" v-bind:key="item._id">
+                <v-card horizontal class="ma-2" v-for="(item,index) in order.cart" v-bind:item="item" v-bind:index="index" v-bind:key="item._id">
                     <v-card-column class="grey lighten-4">
                         <v-card-row>
                             <v-spacer></v-spacer>
@@ -57,8 +57,6 @@ import store from './../store.js'
 export default {
     name: 'Order',
     created () {
-        //reset products (this is kinda unrelated to order, but easiest place to put it)
-        store.dispatch('fetchProducts');
         //get order data
         store.dispatch('fetchOrder',store.state.route.params.id);
     },
