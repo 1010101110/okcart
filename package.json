@@ -1,6 +1,6 @@
 {
-  "name": "simple-cart",
-  "description": "A Vue.js project",
+  "name": "ok-cart",
+  "description": "A simple cart based on node express vue stack",
   "version": "0.0.1",
   "author": "jonathan hiatt",
   "private": true,
