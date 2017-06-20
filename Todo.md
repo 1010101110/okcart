@@ -1,31 +1,39 @@
 # TODO
 
-localstorage hold the cart?
+order 
+    
+    confirm email
+    shipped email
+    status
+    total
 
-order email
 
-order total 
-
-shipping{
-    add country to shipping address
-
-    add country limit?
+shipping
 
     add state, country dropdowns
 
-    add shipping per item. calc shipping charges in cart, show on order.
-}
 
 abstract settings to separate file
 
 deploy test server to vps
 
-backend{
-    authentication
+backend
+
     orders
+
         set order status (email update)
+
     products
+
+        image upload
+
     settings? 
+
+        shipping zones
+            countries, states
+            extra shipping per item
+        
+        minimum order?
 }
 
 # low

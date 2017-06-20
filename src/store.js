@@ -7,19 +7,27 @@ import {router} from './main.js'
 
 //global store object
 const store = new Vuex.Store({
-    state: {
-        store_name:"MyStore",
-        products:[],
+    state: {        
+        //data
+        products:[],        
         cart:[],
+        order:{},
+        //helpers
+        store_name:"MyStore",
         currency: Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD',
             minimumFractionDigits: 2,
         }),
         loading:false,
-        order:{}        
+        authenticated:false,
+        //admin data        
+        orders:[]
     },
     getters: {
+        currency:(state,getters)=>{
+            return state.currency;
+        },
         products:(state,getters)=>{
             //list of products
             return state.products;
@@ -27,7 +35,7 @@ const store = new Vuex.Store({
         product:(state,getters)=>{
             //one product
             return state.products.find(product=>product.name === state.route.params.name);
-        },
+        },                
         cart:(state,getters)=>{
             //list of cart items
             return state.cart;
@@ -53,14 +61,37 @@ const store = new Vuex.Store({
             }
             return state.currency.format(subtotal/100);
         },
+        cartShipping:(state,getters)=>{
+            //price of items in cart
+            var shipTotal = 0;
+            for (var i = 0; i < state.cart.length; i++) {
+                //have to do multiply/divide 100 because javascript one-cent errors with decimals
+                shipTotal += (state.cart[i].quantity * (state.cart[i].shipping));
+            }
+            return state.currency.format(shipTotal/100);
+        },
+        cartTotal:(state,getters)=>{
+            var Total = 0;
+            for (var i = 0; i < state.cart.length; i++) {
+                //have to do multiply/divide 100 because javascript one-cent errors with decimals
+                Total += (state.cart[i].quantity * (state.cart[i].shipping+state.cart[i].price));
+            }
+            return Total;
+        },
         orderTotal:(state,getters)=>{
             return state.currency.format(state.order.amount/100);
         },
-        cartloading:(state,getters)=>{
+        loading:(state,getters)=>{
             return state.loading;
         },
         order:(state,getters)=>{
             return state.order;
+        },
+        orders:(state,getters)=>{
+            return state.orders;
+        },
+        authenticated:(state,getters)=>{
+            return state.authenticated;
         }
     },
     mutations: {
@@ -125,32 +156,51 @@ const store = new Vuex.Store({
                 }
             }
         },
-        setcart(state,c){
-            state.cart = c;
+        setcart(state,val){
+            state.cart = val;
         },
-        setloading(state,tf){
-            state.loading = tf;
+        setloading(state,val){
+            state.loading = val;
         },
-        setorder(state,o){
-            state.order=o;
+        setorder(state,val){
+            state.order = val;
+            console.log(state.order);
+        },
+        setorders(state,val){
+            state.orders = val;
+        },
+        setauthenticated(state,val){
+            state.authenticated = val;
         }
     },
     actions:{
         fetchProducts({commit}){
-            Vue.http.get('/products').then(function(response){
+            Vue.http.get('/api/products').then(function(response){
                 commit('setproducts',response.body);
             },function(response){
                 console.error('fetchProducts: ' + response.statusText);
             })
         },
         fetchOrder({commit,state}, payload){
-            Vue.http.get('/orders/'+payload).then(function(response){
+            Vue.http.get('/api/order/'+payload).then(function(response){
                 commit('setorder',response.body);
             },function(response){
-                console.error('fetchProducts: ' + response.statusText);
+                console.error('fetchOrder: ' + response.statusText);
             })
         },
-        checkout({commit,state}, payload){
+        fetchOrders({commit,state}, payload){
+            Vue.http.get('/api/orders/'+payload.pass).then(function(response){
+                if(response.body){
+                    commit('setorders',response.body);
+                }else{                    
+                    console.log('no orders')
+                    console.log(response)
+                }
+            },function(response){
+                console.error('fetchOrders: ' + response.statusText);
+            })
+        },
+        checkout({commit,state,getters}, payload){
             //show loading
             commit('setloading',true);
 
@@ -160,24 +210,30 @@ const store = new Vuex.Store({
             //checkout data            
             const postdata = {
                 cart:  state.cart,
-                total: 1111,
+                subtotal: getters.cartSubTotal,
+                shiptotal: getters.cartShipping,
+                total: getters.cartTotal,
                 token: payload.token,
                 email: payload.email,
                 address: payload.address
             }
 
             //create order in database
-            Vue.http.post('/checkout',postdata).then(function(response){
+            Vue.http.post('/api/checkout',postdata).then(function(response){
                 if(response.data.order){
                     //reset cart
                     commit('setcart',[]);
                     //reset products
-                    commit('setproducts',[])
+                    commit('setproducts',[]);
                     //navigate to order completed page
                     router.push('/order/'+response.data.order._id);
+                    //refresh products
+                    setTimeout(function(){
+                        store.dispatch('fetchProducts');
+                    },50)
                 }else{
                     //error of some kind
-                    console.log(response)
+                    console.log(response);
                 }
             },function(response){
                 //error of some kind
@@ -185,6 +241,22 @@ const store = new Vuex.Store({
             }).then(function(){               
                 commit('setloading',false);
             });            
+        },
+        auth({commit,state}, payload){
+            //show loading
+            commit('setloading',true);
+            
+            //send pass to server to try and authenticate
+            Vue.http.get('/api/auth?pass='+payload.pass).then(function(response){
+                if(response.ok && response.body === "good"){
+                    commit('setauthenticated',true);
+                    //refresh data
+                    store.dispatch('fetchProducts');
+                    store.dispatch('fetchOrders',{pass:payload.pass});
+                }
+            }).then(function(){
+                commit('setloading',false);
+            });
         }
     }
 });

@@ -14,6 +14,7 @@ import ProductView from './components/ProductView.vue'
 import ProductList from './components/ProductList.vue'
 import Cart from './components/Cart.vue'
 import Order from './components/Order.vue'
+import Admin from './components/Admin.vue'
 
 //router
 import Router from 'vue-router'
@@ -42,7 +43,12 @@ export const router = new Router({
         path: '/order/:id',
         name: 'order',
         component: Order
-    }
+    },
+    {
+        path: '/admin',
+        name: 'admin',
+        component: Admin
+    },
   ]  
 })
 

@@ -60,7 +60,7 @@ server.get('/settings', function (req, res) {
 });
 
 //return json products find from database
-server.get('/products', function (request, response) {
+server.get('/api/products', function (request, response) {
     // Set an existing field's value
     products.find({}, function (err, docs) {
         if (err) console.log(err);
@@ -69,20 +69,29 @@ server.get('/products', function (request, response) {
 });
 
 //return json order find in database
-server.get('/orders/:id', function (request, response) {
+server.get('/api/order/:id', function (request, response) {
     orders.findOne({_id:request.params.id}, function (err, doc) {
         if (err) console.log(err);
+        console.log('sending doc: '+request.params.id)
         response.json(doc);
     })  
 });
 
 //return json orders find from database
-server.get('/orders', function (request, response) {
-
+server.get('/api/orders/:pass', function (request, response) {
+    if(checkpass(request.params.pass)){
+        orders.find({},function (err,docs){
+            if (err) console.log(err);
+            response.json(docs);
+        })        
+    }else{
+        console.log('failed orders authorization')
+        response.end();
+    }
 })
 
 //create order
-server.post('/checkout', function (request, response) {    
+server.post('/api/checkout', function (request, response) {    
     // Create+Send Stripe Charge (see stripe api)
     var charge = stripe.charges.create({
         amount: request.body.total,
@@ -159,19 +168,36 @@ server.post('/checkout', function (request, response) {
 })
 
 //Authentication for backend
-server.get('/auth', function (request, response) {    
+//a timeout to prevent a high frequency of requests (like brute force)
+var authtimeout = false;
+server.get('/api/auth', function (request, response) {
+
+    if(!authtimeout){
+        authtimeout = true;
+        setTimeout(function() {
+            authtimeout = false;
+        }, 1000);
+
+        if(checkpass(request.query.pass)){
+            response.end("good")
+        }else{
+            console.log('failed authorization')
+            response.end("fail")
+        }
+    }
+    else{
+        response.end("fail")
+    }
+});
+
+function checkpass(pass){
     //use bcrypt.hash to generate your own password and store the hash here
     //if you ever forget your password you will have to redo this step
     //we store this here as a local variable and never reference it again to keep it secure
-    var mypass = "$2a$10$1hFcepwZlTmpmrM.QTvZtuczVJswgTUG8pn9nlidS39rEJ/aK7U2.";
-    bcrypt.compare(request.query.pass,mypass,function(err,res){
-        if(res){
-            response.end("good")
-        }else{
-            response.end("fail")
-        }
-    })    
-});
+    var myhash = "$2a$10$1hFcepwZlTmpmrM.QTvZtuczVJswgTUG8pn9nlidS39rEJ/aK7U2.";
+    //default password is lol
+    return bcrypt.compareSync(pass,myhash);
+}
 
 // =========Vue App Route=========
 //this lets vue router handle all other routes on the client (only above routes go to the server)
