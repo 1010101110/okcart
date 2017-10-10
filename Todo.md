@@ -8,11 +8,6 @@ order
     total
 
 
-shipping
-
-    add state, country dropdowns
-
-
 abstract settings to separate file
 
 deploy test server to vps
@@ -25,22 +20,26 @@ backend
 
     products
 
+        edit product fields
         image upload
 
     settings? 
-
-        shipping zones
-            countries, states
-            extra shipping per item
         
         minimum order?
-}
-
-# low
 
 update readme
 - config
 
 setup tutorial video
 
-check vuetify for autocomplete fields
+# low
+
+product
+
+    variations
+
+shipping
+
+    add state, country dropdowns?
+
+    

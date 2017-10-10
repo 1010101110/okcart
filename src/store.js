@@ -76,6 +76,15 @@ const store = new Vuex.Store({
                 //have to do multiply/divide 100 because javascript one-cent errors with decimals
                 Total += (state.cart[i].quantity * (state.cart[i].shipping+state.cart[i].price));
             }
+            return state.currency.format(Total/100);
+        },
+        checkoutTotal:(state,getters)=>{
+            //do not format this one. we need cents value for stripe checkout
+            var Total = 0;
+            for (var i = 0; i < state.cart.length; i++) {
+                //have to do multiply/divide 100 because javascript one-cent errors with decimals
+                Total += (state.cart[i].quantity * (state.cart[i].shipping+state.cart[i].price));
+            }
             return Total;
         },
         orderTotal:(state,getters)=>{
@@ -212,7 +221,7 @@ const store = new Vuex.Store({
                 cart:  state.cart,
                 subtotal: getters.cartSubTotal,
                 shiptotal: getters.cartShipping,
-                total: getters.cartTotal,
+                total: getters.checkoutTotal,
                 token: payload.token,
                 email: payload.email,
                 address: payload.address
@@ -257,8 +266,38 @@ const store = new Vuex.Store({
             }).then(function(){
                 commit('setloading',false);
             });
+        },
+        deleteProduct({commit,state}, payload){
+            Vue.http.get('/api/deleteProduct/'+payload).then(function(response){
+                if(response.ok){            
+                    //refresh data
+                    store.dispatch('fetchProducts');
+                }else{
+                    console.log(response)
+                }
+            })
+        },
+        addProduct({commit,state}){
+            Vue.http.get('/api/addProduct').then(function(response){
+                if(response.ok){
+                    //refresh data
+                    store.dispatch('fetchProducts');
+                }else{
+                    console.log(response)
+                }
+            })
+        },
+        updateProduct({commit,state}, payload){
+            Vue.http.post('/api/updateProduct',payload).then(function(response){
+                if(response.ok){
+                    //refresh data
+                    store.dispatch('fetchProducts');
+                }else{
+                    console.log(response)
+                }
+            })
         }
-    }
+    },
 });
 
 export default store;

@@ -68,6 +68,51 @@ server.get('/api/products', function (request, response) {
     })     
 });
 
+//add product to database
+server.get('/api/addProduct',function (request,response) {
+    var doc = {
+        name:"",
+        stock:0,
+        price:0,
+        shipping:0,
+        images:[]
+    }
+    products.insert(doc,function(err,inserted){
+        if(err) console.log(err)
+        response.json(doc)
+    })
+})
+
+//update existing product in database
+server.post('/api/updateProduct',function(request,response){
+    //first save images
+    console.log(request.body)
+    //now update db
+    products.update({_id:request.body._id},
+    {
+        name:request.body.name,
+        stock:request.body.stock,
+        price:request.body.price,
+        shipping:request.body.shipping,
+        images:[]
+    },{},function(err,num){
+        if(err) console.log(err)
+    })
+})
+
+//delete product from database
+server.get('/api/deleteProduct/:id',function(request,response){
+    if(request.params.id){
+        products.remove({_id: request.params.id},function(err,num){
+            if(num>0){
+                response.end('good')
+            }else{
+                response.end('fail')
+            }
+        })
+    }
+})
+
 //return json order find in database
 server.get('/api/order/:id', function (request, response) {
     orders.findOne({_id:request.params.id}, function (err, doc) {

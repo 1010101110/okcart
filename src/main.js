@@ -61,8 +61,8 @@ import Vuetify from 'vuetify'
 Vue.use(Vuetify)
 
 //veevalidate
-import VeeValidate from 'vee-validate';
-Vue.use(VeeValidate);
+// import VeeValidate from 'vee-validate';
+// Vue.use(VeeValidate);
 
 //init app
 const app = new Vue({

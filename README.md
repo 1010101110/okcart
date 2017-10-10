@@ -20,4 +20,8 @@ npm run build
 
 # run the server
 node server.js
+
+# run the server forever
+npm install pm2 -g
+pm2 start server.js
 ```

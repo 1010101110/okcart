@@ -13,11 +13,10 @@
                     <v-stepper-step step="3" editable>Payment</v-stepper-step>
                 </v-stepper-header>
                 <v-stepper-content step="1">
-                    <v-card horizontal class="ma-3" v-for="(item,index) in cart" v-bind:item="item" v-bind:index="index" v-bind:key="item._id">
-                        <v-card-column class="grey lighten-4">
-                            <v-card-row>
-                                <v-spacer></v-spacer>
-                                <v-card-text class="text-xs-right">
+                    <v-card class="ma-3" v-for="item in cart" v-bind:item="item" v-bind:key="item._id">
+                        <v-container>
+                            <v-layout row>
+                                <v-flex xs8>
                                     <strong>{{item.name}}</strong>
                                     <div>
                                         {{item.price/100}}<br>
@@ -25,42 +24,35 @@
                                         {{item.quantity}}
                                         <v-btn icon @click.native="removecartitem(item)"><v-icon>remove</v-icon></v-btn>
                                     </div>
-                                </v-card-text>
-                            </v-card-row>
-                        </v-card-column>
-                        <v-card-row :img="item.image[0]" height="125px"></v-card-row>
+                                </v-flex>
+                                <v-flex xs4>
+                                    <v-card-media height="100%" :src="item.image[0]" ></v-card-media>
+                                </v-flex>
+                            </v-layout>
+                        </v-container>
                     </v-card>
-                    <v-card horizontal class="ma-3">
-                        <v-card-column class="grey lighten-4">
-                            <v-card-row>
-                                <v-spacer></v-spacer>
-                                <v-card-text class="text-xs-right">
-                                    Subtotal: {{cartSubTotal}}<br>        
-                                    Shipping: {{cartShipping}}<br>
-                                    <strong>Total: {{total}}</strong>
-                                </v-card-text>
-                            </v-card-row>
-                        </v-card-column>
-                        <v-card-row height="125px" class="grey lighten-4"></v-card-row>
+                    <v-card flat class="ma-3">
+                        <v-card-text>
+                            Subtotal: {{cartSubTotal}}<br>        
+                            Shipping: {{cartShipping}}<br>
+                            <strong>Total: {{total}}</strong>
+                        </v-card-text>
                     </v-card>
                     
-                    <v-btn primary @click.native="step = 2" light>Continue</v-btn>
+                    <v-btn color="primary" @click.native="step = 2">Continue</v-btn>
                 </v-stepper-content>
                 <v-stepper-content step="2">
-                    <v-text-field type="email" v-model="email" error name="email" v-validate data-vv-name="email" data-vv-rules="required|email" autocomplete="email" label="email" single-line prepend-icon="email"></v-text-field>
-                    <v-text-field type="text" v-model="name" name="name" v-validate data-vv-name="name" data-vv-rules="required" autocomplete="name" label="full name" single-line prepend-icon="person"></v-text-field>
-                    <v-text-field type="text" v-model="street" name="street" v-validate data-vv-name="street" data-vv-rules="required" autocomplete="shipping address-line1" label="street" single-line prepend-icon="home"></v-text-field>
-                    <v-text-field type="text" v-model="apt" autocomplete="shipping address-line2" label="apt/unit" single-line prepend-icon="home"></v-text-field>
-                    <v-text-field type="text" v-model="city" name="city" v-validate data-vv-name="city" data-vv-rules="required" autocomplete="shipping address-level2" label="city" single-line prepend-icon="location_city"></v-text-field>
-                    <v-text-field type="text" v-model="state" name="state" v-validate data-vv-name="state" data-vv-rules="required" autocomplete="shipping address-level1" label="state" single-line prepend-icon="landscape"></v-text-field>
-                    <v-text-field type="text" v-model="country" name="country" v-validate data-vv-name="country" data-vv-rules="required" autocomplete="shipping country" label="country" single-line prepend-icon="public"></v-text-field>
-                    <v-text-field type="text" v-model="zip" name="zip" v-validate data-vv-name="zip" data-vv-rules="required" autocomplete="shipping postal-code" label="zip" single-line prepend-icon="explore"></v-text-field>
-                    <!--
-                        per vuetify there will be a new field for forms(waiting for new component 6/2/2017)
-                        autocomplete and validation is broken
-                        errors.has('field')
-                    -->
-                    <v-btn primary @click.native="step = 3" light>Continue</v-btn>
+                    <v-form ref="form">
+                        <v-text-field type="email" v-model="email" name="email" :rules="emailRules" required autocomplete="email" label="email" single-line prepend-icon="email"></v-text-field>
+                        <v-text-field type="text" v-model="name" name="name" :rules="reqRules" required autocomplete="name" label="full name" single-line prepend-icon="person"></v-text-field>
+                        <v-text-field type="text" v-model="street" name="street" :rules="reqRules":rules="reqRules" required autocomplete="shipping address-line1" label="street" single-line prepend-icon="home"></v-text-field>
+                        <v-text-field type="text" v-model="apt" autocomplete="shipping address-line2" label="apt/unit" single-line prepend-icon="home"></v-text-field>
+                        <v-text-field type="text" v-model="city" name="city" :rules="reqRules" required autocomplete="shipping address-level2" label="city" single-line prepend-icon="location_city"></v-text-field>
+                        <v-text-field type="text" v-model="state" name="state" :rules="reqRules" required autocomplete="shipping address-level1" label="state" single-line prepend-icon="landscape"></v-text-field>
+                        <v-text-field type="text" v-model="country" name="country" :rules="reqRules" required autocomplete="shipping country" label="country" single-line prepend-icon="public"></v-text-field>
+                        <v-text-field type="text" v-model="zip" name="zip" :rules="reqRules" required autocomplete="shipping postal-code" label="zip" single-line prepend-icon="explore"></v-text-field>
+                    </v-form>
+                    <v-btn color="primary" @click.native="step = 3">Continue</v-btn>
                 </v-stepper-content>
                 <v-stepper-content step="3">
                     <div class="ccinput">
@@ -73,10 +65,12 @@
                     </div>
                     <div class="ccinput">
                         <div id="card-errors" role="alert"></div>
-                        <p class="form-errors" v-for="err in errors.all()">{{err}}</p>
+                        <p class="form-errors" v-for="err in errors" :key="err.id">
+                            <span @click="step=err.step">{{err.text}}</span>
+                        </p>
                     </div>
                     <transition name="fade" mode="out-in">
-                        <v-btn primary light @click.native="checkout()" v-if="!cartloading">Place Order</v-btn>
+                        <v-btn color="primary" @click.native="checkout()" v-if="!cartloading">Place Order</v-btn>
                         <v-progress-circular indeterminate primary v-bind:size="70" v-else></v-progress-circular>
                     </transition>
                 </v-stepper-content>
@@ -124,7 +118,15 @@ export default {
             city:"",
             state:"",
             zip:"",
-            country:""
+            country:"",
+            emailRules:[
+                (v) => !!v || 'E-mail is required',
+                (v) => /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail must be valid'
+            ],
+            reqRules:[
+                (v) => !!v || 'Field is required',
+            ],
+            errors:[]
         }
     },
   mounted:()=>{    
@@ -148,9 +150,6 @@ export default {
     cartloading: ()=>{
         return store.getters.loading;
     },
-    emailval: ()=>{
-        return errors.first('email');
-    },
     total: ()=>{
         return store.getters.cartTotal;
     },
@@ -169,12 +168,9 @@ export default {
         store.commit("deleteitemfromcart",item);
     },
     checkout(){
-        //clear existing errors?
-        this.errors.clear();
+        this.errors = []
 
-        //validate form (shipping tab)        
-        this.$validator.validateAll().then(()=>{
-            //validate card (payment tab)
+        if(this.$refs.form.validate()){
             stripe.createToken(card).then((result)=>{
                 if(result.error){
                     document.querySelector('#card-errors').textContent = result.error.message;
@@ -194,11 +190,10 @@ export default {
                         }
                     });
                 }
-            })            
-        }).catch(()=>{
-            //should show errors reactively
-            console.log('form failed validation')
-        })
+            }) 
+        }else{
+            this.errors.push({id:"vuetifyform",text:"Error in address",step:2})
+        }
     }
   }
 }

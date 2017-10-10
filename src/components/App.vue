@@ -1,18 +1,20 @@
 <template>
   <v-app>
-    <v-toolbar light>
+    <v-toolbar dark class="primary" app>
       <v-toolbar-title><router-link class="white--text" to="/">{{title}}</router-link></v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon light v-on:click.native="$router.push('/cart')">
-        <v-icon class="white--text">shopping_cart</v-icon>{{cartQuantity}}
+      <v-btn icon dark v-on:click.native="$router.push('/cart')">
+        <v-icon>shopping_cart</v-icon>{{cartQuantity}}
       </v-btn>
     </v-toolbar>
     <main>
-      <v-container fluid>
-        <transition name="fade" mode="out-in">
-          <router-view></router-view>
-        </transition>
-      </v-container>
+      <v-content>
+        <v-container fluid>
+          <transition name="fade" mode="out-in">
+            <router-view></router-view>
+          </transition>
+        </v-container>
+      </v-content>
     </main>
   </v-app>
 </template>
