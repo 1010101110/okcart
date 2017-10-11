@@ -2,13 +2,8 @@
     "storeName":"MyStore",
     "locale":"en-US",
     "currency":"usd",
-    
-    //stripe
     "serverToken":"sk_test_AbLFTbzSIGCoNxJwixfU8OgG",
     "clientToken":"pk_test_GhV0QqLp9vthn8RTrVlfDiF9",
-
-    //email
     "contactEmail":"support@mystore.com",
     "orderEmail":"orders@mystore.com"
-
 }

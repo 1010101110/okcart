@@ -4,6 +4,8 @@ import Vuex from 'vuex'
 Vue.use(Vuex);
 //router object for nav actions
 import {router} from './main.js'
+//config
+var config = require("../config.json")
 
 //global store object
 const store = new Vuex.Store({
@@ -13,7 +15,7 @@ const store = new Vuex.Store({
         cart:[],
         order:{},
         //helpers
-        store_name:"MyStore",
+        store_name:config.storeName,
         currency: Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD',
@@ -292,6 +294,16 @@ const store = new Vuex.Store({
                 if(response.ok){
                     //refresh data
                     store.dispatch('fetchProducts');
+                }else{
+                    console.log(response)
+                }
+            })
+        },
+        updateOrder({commit,state}, payload){
+            Vue.http.post('/api/updateOrder',payload).then(function(response){
+                if(response.ok){
+                    //hmmm
+                    return
                 }else{
                     console.log(response)
                 }

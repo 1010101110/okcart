@@ -39,6 +39,8 @@ server.use(bodyParser.json());
 //stripe for payment processing
 var stripe = require('stripe')("sk_test_AbLFTbzSIGCoNxJwixfU8OgG");
 
+var config = require("./config.json")
+
 // =========Server Routes=========
 
 //https redirect
@@ -55,9 +57,9 @@ server.use('/dist', express.static(
 ));
 
 //settings
-server.get('/settings', function (req, res) {
-    res.end(require("config.json"));
-});
+// server.get('/settings', function (req, res) {
+//     res.end(require("config.json"));
+// });
 
 //return json products find from database
 server.get('/api/products', function (request, response) {
@@ -86,16 +88,14 @@ server.get('/api/addProduct',function (request,response) {
 //update existing product in database
 server.post('/api/updateProduct',function(request,response){
     //first save images
-    console.log(request.body)
     //now update db
     products.update({_id:request.body._id},
-    {
+    { $set: {
         name:request.body.name,
         stock:request.body.stock,
         price:request.body.price,
         shipping:request.body.shipping,
-        images:[]
-    },{},function(err,num){
+    }},{},function(err,num){
         if(err) console.log(err)
     })
 })
@@ -145,6 +145,7 @@ server.post('/api/checkout', function (request, response) {
         source: request.body.token.id
     }, function(err, charge) {
         if(err){
+            //handle different types of errors
             switch(err.type){
                 default:
                     //pass error to client
@@ -153,19 +154,22 @@ server.post('/api/checkout', function (request, response) {
                 break;
             }       
         }else{
-            //add our cart information to the charge 
-            //(stripe complains if we do this first as it is not part of their api)
-            charge.cart = request.body.cart;
-            charge.address = request.body.address;
+            //create order now that it has been charged
+            let order = {}
+            order.charge = charge;
+            order.cart = request.body.cart;
+            order.email = request.body.email;
+            order.address = request.body.address;
+            order.status = "created";
 
-            orders.insert(charge,function(err,newOrder){
+            orders.insert(order,function(err,newOrder){
                 if(err){
                     //pass error to client
                     console.log({error:err.message});
                     response.json({error:err.message});
                 }else{
                     //update product stock
-                    request.body.cart.forEach(function(element) {
+                    newOrder.cart.forEach(function(element) {
                         products.findOne({_id:element._id},function(err,doc){
                             if(err){
                                 console.log('error updating products after checkout')
@@ -198,9 +202,9 @@ server.post('/api/checkout', function (request, response) {
 
                     //send email confirmation
                     sendmail({
-                        from: 'no-reply@mystore.com',
+                        from: config.orderEmail,
                         to: newOrder.email,
-                        subject: 'Your ' + 'mystore' + 'order',
+                        subject: 'Your ' + config.storeName + 'order',
                         text:emailtext,
                         html:emailhtml
                     }, function(err, reply) {
@@ -210,6 +214,18 @@ server.post('/api/checkout', function (request, response) {
             })            
         }
     });
+})
+
+//update existing product in database
+server.post('/api/updateOrder',function(request,response){
+    //update db
+    orders.update({_id:request.body._id},
+    { $set: {
+        status:request.body.status,
+        tracking:request.body.tracking
+    }},{},function(err,num){
+        if(err) console.log(err)
+    })
 })
 
 //Authentication for backend

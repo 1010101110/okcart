@@ -6,7 +6,7 @@
                     <v-card-title>
                         <router-link :to="{ name: 'product', params: { name: item.name }}">{{item.name}}</router-link>
                     </v-card-title>
-                    <v-card-media :src="item.image[0]" height="200px"></v-card-media>
+                    <v-card-media height="200px"></v-card-media>
                     <v-card-actions class="mt-0">
                         <span>{{item.stock > 0 ? formatPrice(item.price) : "out of stock"}}</span>
                         <v-spacer></v-spacer>

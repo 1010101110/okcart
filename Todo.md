@@ -1,34 +1,31 @@
 # TODO
 
-order 
-    
-    confirm email
-    shipped email
-    status
-    total
-
-
-abstract settings to separate file
-
-deploy test server to vps
-
 backend
 
     orders
 
-        set order status (email update)
+        datatable?
+        collapsible?
+        sort?
 
     products
 
-        edit product fields
-        image upload
+        image[] upload
+        placement / order
+        visible
 
-    settings? 
-        
-        minimum order?
+deploy to vps
+
+email
+
+    confirm email
+    shipped email
+    canceled email + refund charges
 
 update readme
-- config
+
+    config
+    index (icon and title)
 
 setup tutorial video
 
@@ -41,5 +38,4 @@ product
 shipping
 
     add state, country dropdowns?
-
-    
+   
