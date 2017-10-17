@@ -1,5 +1,7 @@
 'use strict'
 
+var config = require("./config.json")
+
 // =========Node packages=========
 
 //file path
@@ -39,8 +41,6 @@ server.use(bodyParser.json());
 //stripe for payment processing
 var stripe = require('stripe')("sk_test_AbLFTbzSIGCoNxJwixfU8OgG");
 
-var config = require("./config.json")
-
 // =========Server Routes=========
 
 //https redirect
@@ -77,7 +77,7 @@ server.get('/api/addProduct',function (request,response) {
         stock:0,
         price:0,
         shipping:0,
-        images:[]
+        images:["/assets/default.jpg"]
     }
     products.insert(doc,function(err,inserted){
         if(err) console.log(err)
@@ -95,6 +95,10 @@ server.post('/api/updateProduct',function(request,response){
         stock:request.body.stock,
         price:request.body.price,
         shipping:request.body.shipping,
+        description:request.body.description,
+        images:request.body.images,
+        visible:request.body.visible,
+        order:request.body.order
     }},{},function(err,num){
         if(err) console.log(err)
     })
@@ -117,7 +121,6 @@ server.get('/api/deleteProduct/:id',function(request,response){
 server.get('/api/order/:id', function (request, response) {
     orders.findOne({_id:request.params.id}, function (err, doc) {
         if (err) console.log(err);
-        console.log('sending doc: '+request.params.id)
         response.json(doc);
     })  
 });
@@ -161,6 +164,9 @@ server.post('/api/checkout', function (request, response) {
             order.email = request.body.email;
             order.address = request.body.address;
             order.status = "created";
+            order.subtotal = request.body.subtotal;
+            order.shiptotal = request.body.shiptotal;
+            order.total = request.body.total;
 
             orders.insert(order,function(err,newOrder){
                 if(err){

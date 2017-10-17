@@ -2,11 +2,11 @@
     <div :key="pl_view">
         <v-layout row wrap>
             <v-flex xs12 sm6 md4 lg3 xl2 v-for="item in products" :key="item._id">
-                <v-card class="ma-2">
+                <v-card v-if="item.visible" class="ma-2">
                     <v-card-title>
                         <router-link :to="{ name: 'product', params: { name: item.name }}">{{item.name}}</router-link>
                     </v-card-title>
-                    <v-card-media height="200px"></v-card-media>
+                    <v-card-media :src="item.images[0]" height="200px"></v-card-media>
                     <v-card-actions class="mt-0">
                         <span>{{item.stock > 0 ? formatPrice(item.price) : "out of stock"}}</span>
                         <v-spacer></v-spacer>
