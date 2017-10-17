@@ -60,10 +60,6 @@ sync(store,router)
 import Vuetify from 'vuetify'
 Vue.use(Vuetify)
 
-//veevalidate
-// import VeeValidate from 'vee-validate';
-// Vue.use(VeeValidate);
-
 //init app
 const app = new Vue({
   el: '#app',

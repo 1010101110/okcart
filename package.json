@@ -14,7 +14,6 @@
     "nedb": "*",
     "sendmail": "*",
     "stripe": "*",
-    "vee-validate": "*",
     "vue": "*",
     "vue-material": "*",
     "vue-resource": "*",
