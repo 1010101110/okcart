@@ -63,9 +63,14 @@ server.use('/dist', express.static(
 
 //return json products find from database
 server.get('/api/products', function (request, response) {
-    // Set an existing field's value
+    // products.find({}).sort({sort:-1}).toArray(function(err,docs){
+    //     if (err) console.log(err);
+    //     response.json(docs);        
+    // })
+
     products.find({}, function (err, docs) {
         if (err) console.log(err);
+        docs.sort((a,b)=>{return a.sort - b.sort})
         response.json(docs);
     })     
 });
@@ -98,7 +103,7 @@ server.post('/api/updateProduct',function(request,response){
         description:request.body.description,
         images:request.body.images,
         visible:request.body.visible,
-        order:request.body.order
+        sort:request.body.sort
     }},{},function(err,num){
         if(err) console.log(err)
     })

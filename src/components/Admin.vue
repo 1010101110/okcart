@@ -17,7 +17,8 @@
                                 <v-flex xs12 sm6 md6 lg4 xl3 class="pa-2" v-for="item in products" :key="item._id">
                                     <div class="pa-2 elevation-5">
                                         <v-text-field disabled v-model="item._id" name="id" label="id"></v-text-field>
-                                        <label><input type="checkbox" v-model="item.visible">visible?</label>
+                                        <label><input type="checkbox" v-model="item.visible">visible?</label><br>
+                                        <label>view order: <input type="number" v-model.number="item.sort"></label>
 
                                         <v-text-field v-model="item.name" name="name" label="name"></v-text-field>
                                         <v-text-field v-model="item.stock" name="stock" label="stock"></v-text-field>

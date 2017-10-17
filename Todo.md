@@ -9,7 +9,7 @@ backend
     products
 
         image[] upload
-        placement / order
+        placement / sort
 
 deploy to vps
 
@@ -36,6 +36,7 @@ product
 shipping
 
     add state, country dropdowns?
+    order shipping price / minimum shipping cost
    
 toasts
     
