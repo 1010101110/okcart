@@ -3,17 +3,14 @@
         <h3>Order Details</h3>
         <div id="order">
         <v-layout row wrap>
-            <v-flex xs12 sm8>
+            <v-flex xs12>
                 Order# {{order._id}}<br>
-                Ordered On: {{new Date(order.created*1000).toDateString()}}
-            </v-flex>
-            <v-flex sm4 class="hidden-xs-only">
-                <v-btn icon v-on:click.native="window.print()"><v-icon>print</v-icon></v-btn>
+                Ordered On: {{new Date(order.charge.created*1000).toLocaleString()}}
             </v-flex>
             <v-flex xs12 sm4>
                 <h6>Payment</h6>
                 <p>                        
-                    {{order.source.brand}} {{order.source.last4}}
+                    {{order.charge.source.brand}} {{order.charge.source.last4}}
                 </p>
             </v-flex>
             <v-flex xs12 sm4>
@@ -27,28 +24,32 @@
             <v-flex xs12 sm4>
                 <h6>Summary</h6>
                 <p>
-                    Shipping: free<br>
-                    Total: {{total}}
+                    Shipping: {{order.shiptotal}}<br>
+                    Total: {{order.total}}
                 </p>
             </v-flex>
             <v-flex xs12>
-                <v-card horizontal class="ma-2" v-for="(item,index) in order.cart" v-bind:item="item" v-bind:index="index" v-bind:key="item._id">
-                    <v-card-column class="grey lighten-4">
-                        <v-card-row>
-                            <v-spacer></v-spacer>
-                            <v-card-text class="text-xs-right">
+                <h6>Cart</h6>
+                <v-card class="ma-3" v-for="item in order.cart" v-bind:item="item" v-bind:key="item._id">
+                    <v-container>
+                        <v-layout row>
+                            <v-flex xs8>
                                 <strong>{{item.name}}</strong>
                                 <div>
-                                    {{item.quantity}}x {{item.price/100}}                                    
+                                    {{item.price/100}}<br>
+                                    {{item.quantity}}
                                 </div>
-                            </v-card-text>
-                        </v-card-row>
-                    </v-card-column>
-                    <v-card-row :img="item.image[0]" height="125px"></v-card-row>
+                            </v-flex>
+                            <v-flex xs4>
+                                <v-card-media height="100%" :src="item.images[0]" ></v-card-media>
+                            </v-flex>
+                        </v-layout>
+                    </v-container>
                 </v-card>
             </v-flex>
         </v-layout>
         </div>
+        <v-btn color="primary" dark v-on:click.native="print()">Print <v-icon>print</v-icon></v-btn>
 </template>
 
 <script>
@@ -66,6 +67,17 @@ export default {
         },
         total:()=>{
             return store.getters.orderTotal;
+        }
+    },
+    methods:{
+        print:()=>{
+            var prtContent = document.getElementById("order");
+            var WinPrint = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
+            WinPrint.document.write(prtContent.innerHTML);
+            WinPrint.document.close();
+            WinPrint.focus();
+            WinPrint.print();
+            WinPrint.close();
         }
     }
 }

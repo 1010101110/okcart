@@ -26,7 +26,7 @@
                                     </div>
                                 </v-flex>
                                 <v-flex xs4>
-                                    <v-card-media height="100%" :src="item.image[0]" ></v-card-media>
+                                    <v-card-media height="100%" :src="item.images[0]" ></v-card-media>
                                 </v-flex>
                             </v-layout>
                         </v-container>
@@ -55,6 +55,7 @@
                     <v-btn color="primary" @click.native="step = 3">Continue</v-btn>
                 </v-stepper-content>
                 <v-stepper-content step="3">
+                    <p>Order Total: {{total}}</p>
                     <div class="ccinput">
                         <label for="card-element">
                             Credit or debit card
