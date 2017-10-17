@@ -25,7 +25,7 @@ export default {
   name: 'ProductList',
   computed:{
       products: ()=>{
-        return store.getters.products;
+        return store.getters.products.filter((p)=>{return p.visible === true});
       }
   },
   methods:{
