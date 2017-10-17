@@ -59,7 +59,7 @@ const store = new Vuex.Store({
             var subtotal = 0;
             for (var i = 0; i < state.cart.length; i++) {
                 //have to do multiply/divide 100 because javascript one-cent errors with decimals
-                subtotal += (state.cart[i].quantity * (state.cart[i].price));
+                subtotal += (state.cart[i].quantity * parseInt(state.cart[i].price));
             }
             return state.currency.format(subtotal/100);
         },
@@ -68,7 +68,7 @@ const store = new Vuex.Store({
             var shipTotal = 0;
             for (var i = 0; i < state.cart.length; i++) {
                 //have to do multiply/divide 100 because javascript one-cent errors with decimals
-                shipTotal += (state.cart[i].quantity * (state.cart[i].shipping));
+                shipTotal += (state.cart[i].quantity * parseInt(state.cart[i].shipping));
             }
             return state.currency.format(shipTotal/100);
         },
@@ -76,7 +76,7 @@ const store = new Vuex.Store({
             var Total = 0;
             for (var i = 0; i < state.cart.length; i++) {
                 //have to do multiply/divide 100 because javascript one-cent errors with decimals
-                Total += (state.cart[i].quantity * (state.cart[i].shipping+state.cart[i].price));
+                Total += (state.cart[i].quantity * (parseInt(state.cart[i].shipping)+parseInt(state.cart[i].price/1)));
             }
             return state.currency.format(Total/100);
         },
@@ -85,12 +85,12 @@ const store = new Vuex.Store({
             var Total = 0;
             for (var i = 0; i < state.cart.length; i++) {
                 //have to do multiply/divide 100 because javascript one-cent errors with decimals
-                Total += (state.cart[i].quantity * (state.cart[i].shipping+state.cart[i].price));
+                Total += (state.cart[i].quantity * (parseInt(state.cart[i].shipping)+parseInt(state.cart[i].price)));
             }
             return Total;
         },
         orderTotal:(state,getters)=>{
-            return state.currency.format(state.order.amount/100);
+            return state.currency.format(state.order.charge.amount/100);
         },
         loading:(state,getters)=>{
             return state.loading;
