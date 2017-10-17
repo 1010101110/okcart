@@ -1,3 +1,4 @@
-{"name":"zzzzzzz","stock":8,"price":222,"shipping":"100","images":[],"_id":"2xUOpvUTGB3h5Ojg"}
-{"name":"nothing","stock":"0","price":222,"shipping":"100","images":[],"_id":"2xUOpvUTGBbh3Ojg"}
-{"name":"something","stock":2,"price":2211,"shipping":"100","images":[],"_id":"7oe5NIQxDlLhc8Z1"}
+{"visible":false,"name":"zzzzzzz","stock":7,"price":222,"shipping":"100","images":["/assets/default.jpg"],"_id":"2xUOpvUTGB3h5Ojg","description":"zzz\nz\nz"}
+{"visible":false,"name":"nothing","stock":"0","price":222,"shipping":"100","images":["/assets/default.jpg","/assets/default.jpg","/assets/default.jpg"],"_id":"2xUOpvUTGBbh3Ojg","description":"nothing"}
+{"visible":false,"name":"something","stock":2,"price":2211,"shipping":"100","images":["/assets/default.jpg"],"_id":"7oe5NIQxDlLhc8Z1","description":"This product has lots of text\n\nAt first we wanted to find something good\n\nthen we decided it's best to just leave it like this.\n\nsupporting formatting in an item text is a can of worms. just normal text should be ok..?"}
+{"visible":false,"name":"hi","stock":"1","price":"2","shipping":"1","images":["/assets/default.jpg"],"_id":"jw96pCJG9mpvZa78","description":"hi"}
