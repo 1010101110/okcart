@@ -4,15 +4,12 @@ backend
 
     orders
 
-        datatable?
-        collapsible?
-        sort?
+        set status
 
     products
 
         image[] upload
         placement / order
-        visible
 
 deploy to vps
 
@@ -26,6 +23,7 @@ update readme
 
     config
     index (icon and title)
+    stripe tokens (server, cart)
 
 setup tutorial video
 
@@ -39,3 +37,6 @@ shipping
 
     add state, country dropdowns?
    
+toasts
+    
+    when dispatching / completeing an action show toast to user
