@@ -62,13 +62,15 @@
                         </label>
                         <div id="card-element">
                             <!-- a Stripe Element will be inserted here. -->
-                        </div>                            
-                    </div>
-                    <div class="ccinput">
-                        <div id="card-errors" role="alert"></div>
+                        </div>
+                        <!-- errors -->
+                        <div class="mt-2" id="card-errors" role="alert"></div>
                         <p class="form-errors" v-for="err in errors" :key="err.id">
                             <span @click="step=err.step">{{err.text}}</span>
                         </p>
+                        <!-- payment logo -->
+                        <img class="mt-2" src="/assets/stripe.png">                            
+                        <img class="mt-2" src="/assets/ssl.png">
                     </div>
                     <transition name="fade" mode="out-in">
                         <v-btn color="primary" @click.native="checkout()" v-if="!cartloading">Place Order</v-btn>

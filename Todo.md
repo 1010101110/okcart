@@ -6,10 +6,14 @@ backend
 
         set status
 
-    products
+    settings
 
-        image[] upload
-        placement / sort
+        consolidate settings
+
+pages
+
+    about
+    contact
 
 deploy to vps
 
