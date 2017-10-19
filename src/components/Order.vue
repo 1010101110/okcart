@@ -1,5 +1,5 @@
 <template>
-    <div v-if="order" :key="or_view">
+    <div v-if="order.charge" :key="or_view">
         <h3>Order Details</h3>
         <div id="order">
         <v-layout row wrap>
@@ -34,14 +34,13 @@
                     <v-container>
                         <v-layout row>
                             <v-flex xs8>
-                                <strong>{{item.name}}</strong>
+                                <strong>{{item.quantity}}x {{item.name}}</strong>
                                 <div>
-                                    {{item.price/100}}<br>
-                                    {{item.quantity}}
+                                    {{item.price/100}}<br>                                    
                                 </div>
                             </v-flex>
                             <v-flex xs4>
-                                <v-card-media height="100%" :src="item.images[0]" ></v-card-media>
+                                <img :src="item.images[0]" height="100px">                                
                             </v-flex>
                         </v-layout>
                     </v-container>
@@ -73,11 +72,15 @@ export default {
         print:()=>{
             var prtContent = document.getElementById("order");
             var WinPrint = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
+            WinPrint.document.write('<html><head><title></title>');
+            WinPrint.document.write( "<link rel=\"stylesheet\" href=\"https://unpkg.com/vuetify/dist/vuetify.min.css\" type=\"text/css\" media=\"print\"/>" );
+            WinPrint.document.write('</head><body >');
             WinPrint.document.write(prtContent.innerHTML);
+            WinPrint.document.write('</body></html>');
             WinPrint.document.close();
             WinPrint.focus();
             WinPrint.print();
-            WinPrint.close();
+            WinPrint.close();            
         }
     }
 }
