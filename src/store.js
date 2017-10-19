@@ -308,6 +308,9 @@ const store = new Vuex.Store({
                     console.log(response)
                 }
             })
+        },
+        uploadFiles({commit,state}, payload){
+            return Vue.http.post('/api/upload',payload)
         }
     },
 });

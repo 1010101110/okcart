@@ -28,6 +28,9 @@ var credentials = { key: privateKey, cert: certificate, passphrase:'monki' };
 var express = require('express')
 var server = express();
 
+//formidable for file upload
+var formidable = require('formidable')
+
 // Open NeDB databases
 var Datastore = require('nedb');
 var products = new Datastore({ filename: path.join(__dirname, '/db/products'), autoload: true });
@@ -60,14 +63,27 @@ server.use('/dist', express.static(
 // server.get('/settings', function (req, res) {
 //     res.end(require("config.json"));
 // });
+server.post('/api/upload',function(request,response){
+    var paths = []
+    var form = new formidable.IncomingForm()
+    form.multiples = true
+    form.on('file',function(field,file){
+        paths.push('/assets/'+file.name)
+        fs.rename(file.path, path.join(__dirname, '/assets',file.name),err=>{
+            if(err) console.log(err)
+        })
+    })
+    form.on('error',function(err){
+        console.log(err)
+    })
+    form.on('end',function(){
+        response.json(paths)
+    })
+    form.parse(request)
+})
 
 //return json products find from database
 server.get('/api/products', function (request, response) {
-    // products.find({}).sort({sort:-1}).toArray(function(err,docs){
-    //     if (err) console.log(err);
-    //     response.json(docs);        
-    // })
-
     products.find({}, function (err, docs) {
         if (err) console.log(err);
         docs.sort((a,b)=>{return a.sort - b.sort})
@@ -91,9 +107,7 @@ server.get('/api/addProduct',function (request,response) {
 })
 
 //update existing product in database
-server.post('/api/updateProduct',function(request,response){
-    //first save images
-    //now update db
+server.post('/api/updateProduct',function(request,response){    
     products.update({_id:request.body._id},
     { $set: {
         name:request.body.name,
@@ -106,6 +120,7 @@ server.post('/api/updateProduct',function(request,response){
         sort:request.body.sort
     }},{},function(err,num){
         if(err) console.log(err)
+        response.end()
     })
 })
 
@@ -236,6 +251,7 @@ server.post('/api/updateOrder',function(request,response){
         tracking:request.body.tracking
     }},{},function(err,num){
         if(err) console.log(err)
+        response.end()
     })
 })
 

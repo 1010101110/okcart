@@ -6,7 +6,7 @@
                     <v-tabs-slider></v-tabs-slider>
                     <v-tabs-item href="#products">products</v-tabs-item>
                     <v-tabs-item href="#orders">orders</v-tabs-item>
-                    <v-tabs-item href="#settings">settings</v-tabs-item>
+                    <v-tabs-item href="#assets">assets</v-tabs-item>
                 </v-tabs-bar>
                 <v-tabs-items>
                     <v-tabs-content id="products">
@@ -61,21 +61,27 @@
                             </template>
                         </v-data-table>
                     </v-tabs-content>
-                    <v-tabs-content id="settings">
+                    <v-tabs-content id="assets">
                         <v-layout row wrap>
-                            <v-flex xs12 sm6 md4 lg3 xl2>
-                                <p>nothing here yet... lol</p>
+                            <v-flex xs12 sm6 offset-sm3>                                 
+                                <v-icon>folder</v-icon> click or drop files in the box to upload
+                                <v-card :class="{primary:drag,grey:!drag}" @dragover.stop.prevent="imagedragover" class="ma-3 text-xs-center">
+                                    <input type="file" multiple class="fileinput" @change="fileinput">
+                                </v-card>
+                                <v-progress-circular v-if="busy" indeterminate color="primary"></v-progress-circular>                                                                
+                                <h5 v-if="uploadedfiles.length">Uploaded assets:</h5>
+                                <p v-for="(item,index) in uploadedfiles" :key="index">
+                                    {{item}}
+                                </p>
                             </v-flex>
                         </v-layout>
                     </v-tabs-content>
                 </v-tabs-items>
             </v-tabs>
-
-            <!-- settings -->
         </div>
         <div v-else>
             <!-- login -->
-            <v-text-field v-model="pass" label="Enter password" type="password"></v-text-field>
+            <v-text-field v-model="pass" @keyup.13="auth()" label="Enter password" type="password"></v-text-field>
             <v-btn color="primary" light @click.native="auth()" v-if="!loading">Authenticate</v-btn>
             <v-progress-circular indeterminate primary v-bind:size="70" v-else></v-progress-circular>
         </div>
@@ -97,11 +103,15 @@ export default {
           {text:"address",value:"address"},
           {text:"status",value:"status"},
       ],
-      orderstatus:["created","shipped","refunded"]
+      orderstatus:["created","shipped","refunded"],
+      drag:false,
+      droptimeout:null,
+      uploadedfiles:[],
+      busy:false
   }},
   computed:{
       products: ()=>{
-        return _.cloneDeep(store.getters.products);
+          return _.cloneDeep(store.getters.products);
       },
       orders: ()=>{
           return _.cloneDeep(store.getters.orders);
@@ -131,6 +141,39 @@ export default {
       },
       updateOrder(o){
         store.dispatch('updateOrder',o)
+      },
+      imagedragover(e){
+          var self = this
+          self.drag = true
+
+          if(self.droptimeout){
+              clearTimeout(self.droptimeout)
+          }
+          self.droptimeout = setTimeout(function() {
+              self.drag = false
+          }, 100);
+      },
+      fileinput(e){
+          var formData = new FormData()
+          var files = e.target.files
+          //exit if no files
+          if(!files.length) return
+          //show busy
+          var self = this
+          self.busy = true
+
+          //put files into formdata
+          for (var y = 0; y < files.length; y++) {
+              var f = files[y];
+              formData.append('uploads[]',f,f.name)
+          }
+
+          //upload
+          store.dispatch('uploadFiles',formData).then(resp=>{
+              self.busy = false
+              var paths = JSON.parse(resp.bodyText)
+              self.uploadedfiles = self.uploadedfiles.concat(paths)
+          })
       }
   }
 }
@@ -138,5 +181,10 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
+    .fileinput{
+        opacity: 0;
+        width: 100%;
+        height: 200px;
+        cursor: pointer;
+    }
 </style>
