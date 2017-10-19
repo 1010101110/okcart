@@ -175,7 +175,6 @@ const store = new Vuex.Store({
         },
         setorder(state,val){
             state.order = val;
-            console.log(state.order);
         },
         setorders(state,val){
             state.orders = val;
@@ -205,7 +204,6 @@ const store = new Vuex.Store({
                     commit('setorders',response.body);
                 }else{                    
                     console.log('no orders')
-                    console.log(response)
                 }
             },function(response){
                 console.error('fetchOrders: ' + response.statusText);
