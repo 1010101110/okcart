@@ -23,6 +23,7 @@ const store = new Vuex.Store({
         }),
         loading:false,
         authenticated:false,
+        drawer:true,
         //admin data        
         orders:[]
     },
@@ -181,6 +182,9 @@ const store = new Vuex.Store({
         },
         setauthenticated(state,val){
             state.authenticated = val;
+        },
+        setdrawer(state,val){
+            state.drawer = val
         }
     },
     actions:{
