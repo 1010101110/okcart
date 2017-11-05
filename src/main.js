@@ -15,6 +15,8 @@ import ProductList from './components/ProductList.vue'
 import Cart from './components/Cart.vue'
 import Order from './components/Order.vue'
 import Admin from './components/Admin.vue'
+import About from './components/About.vue'
+import Contact from './components/Contact.vue'
 
 //router
 import Router from 'vue-router'
@@ -48,6 +50,16 @@ export const router = new Router({
         path: '/admin',
         name: 'admin',
         component: Admin
+    },
+    {
+        path: '/about',
+        name: 'about',
+        component: About
+    },
+    {
+        path: '/contact',
+        name: 'contact',
+        component: Contact
     },
   ]  
 })

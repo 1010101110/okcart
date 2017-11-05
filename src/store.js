@@ -313,6 +313,9 @@ const store = new Vuex.Store({
         },
         uploadFiles({commit,state}, payload){
             return Vue.http.post('/api/upload',payload)
+        },
+        sendEmail({commit,state}, payload){
+            return Vue.http.post('/api/contact',payload)
         }
     },
 });

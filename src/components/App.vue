@@ -48,8 +48,8 @@ export default {
   data: ()=>({
     menuitems:[
       {icon:"store",text:"Store",href:"/"},
-      {icon:"people",text:"About",href:"/cart"},
-      {icon:"contact_mail",text:"Contact",href:"contact"},
+      {icon:"people",text:"About",href:"/about"},
+      {icon:"contact_mail",text:"Contact",href:"/contact"},
     ],
     cursor:"auto"
   }),
