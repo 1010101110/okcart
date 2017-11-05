@@ -242,6 +242,19 @@ server.post('/api/checkout', function (request, response) {
     });
 })
 
+//contact email 
+server.post('/api/updateOrder',function(request,response){
+    //send email confirmation
+    sendmail({
+        from: request.body.email,
+        to: config.contactEmail,
+        subject: 'Contact from website',
+        text:request.body.body
+    }, function(err, reply) {
+        console.log(err && err.stack);
+    });
+})
+
 //update existing product in database
 server.post('/api/updateOrder',function(request,response){
     //update db
