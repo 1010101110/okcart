@@ -26,7 +26,7 @@ var http = require('http');
 
 //https server
 var https = require('https');
-//you should get your certs from lets encrypt once you have your domain setup
+//you should get your certs from lets encrypt / certbot once you have your domain setup
 var privateKey = fs.readFileSync(path.join(__dirname, '/cert/server.key'), 'utf8');
 var certificate = fs.readFileSync(path.join(__dirname, '/cert/server.crt'), 'utf8');
 var credentials = { key: privateKey, cert: certificate, passphrase:'monki' };
@@ -312,12 +312,10 @@ server.get('/api/auth', function (request, response) {
 });
 
 function checkpass(pass){
-    //use bcrypt.hash to generate your own password and store the hash here
+    //use bcrypt.hash to generate your own password and store it in config
     //if you ever forget your password you will have to redo this step
-    //we store this here as a local variable and never reference it again to keep it secure
-    var myhash = "$2a$10$1hFcepwZlTmpmrM.QTvZtuczVJswgTUG8pn9nlidS39rEJ/aK7U2.";
-    //default password is lol
-    return bcrypt.compareSync(pass,myhash);
+    //default password , hash: lol , $2a$10$1hFcepwZlTmpmrM.QTvZtuczVJswgTUG8pn9nlidS39rEJ/aK7U2.
+    return bcrypt.compareSync(pass,config.adminPassHash);
 }
 
 // =========Vue App Route=========

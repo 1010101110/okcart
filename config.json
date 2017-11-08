@@ -5,5 +5,6 @@
     "currency":"usd",
     "storeEmailService":"Gmail",
     "storeEmailUser":"asdf@gmail.com",
-    "storeEmailPass":"asdf123"
+    "storeEmailPass":"asdf123",
+    "adminPassHash": "$2a$10$1hFcepwZlTmpmrM.QTvZtuczVJswgTUG8pn9nlidS39rEJ/aK7U2."
 }
