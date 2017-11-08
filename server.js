@@ -228,7 +228,7 @@ server.post('/api/checkout', function (request, response) {
                         emailtext += (element.quantity + 'x ' + element.name + ' '  + (element.price * 100) + '\n');
                     }, this);
                     emailtext += '\n \n';
-                    emailtext += 'Total: ' + (newOrder.amount * 100);
+                    emailtext += 'Total: ' + (newOrder.charge.amount * 100);
 
                     //html email
                     var emailhtml = '';
@@ -243,11 +243,7 @@ server.post('/api/checkout', function (request, response) {
                     }
 
                     transporter.sendMail(emailOptions,(err,info)=>{
-                        if(err){
-                            console.log(err)
-                        }else{
-                            console.log('Message sent: ' + info.response)
-                        }
+                        if(err) console.log(err)
                     })
 
                 }
@@ -257,21 +253,17 @@ server.post('/api/checkout', function (request, response) {
 })
 
 //contact email 
-server.post('/api/contact',function(request,response){
-    //send contact
+server.post('/api/contact',function(request,response){        
     let emailOptions ={
-        from: request.body.email,
+        replyTo: request.body.email,
         to: config.storeEmailUser,
         subject: config.storeName + ' Contact',
         text:request.body.body
     }
 
     transporter.sendMail(emailOptions,(err,info)=>{
-        if(err){
-            console.log(err)
-        }else{
-            console.log('Message sent: ' + info.response)
-        }
+        if(err) console.log(err)
+        response.end()
     })
 })
 
