@@ -71,6 +71,8 @@ sync(store,router)
 //Vuetify
 import Vuetify from 'vuetify'
 Vue.use(Vuetify)
+//Vuetify theme
+require('./stylus/main.styl')
 
 //init app
 const app = new Vue({
