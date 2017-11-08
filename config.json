@@ -1,7 +1,9 @@
 {
     "storeName":"MyStore",
+    "stripekey":"sk_test_AbLFTbzSIGCoNxJwixfU8OgG",
     "locale":"en-US",
     "currency":"usd",
-    "contactEmail":"support@mystore.com",
-    "orderEmail":"orders@mystore.com"
+    "storeEmailService":"Gmail",
+    "storeEmailUser":"asdf@gmail.com",
+    "storeEmailPass":"asdf123"
 }

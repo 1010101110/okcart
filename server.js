@@ -12,7 +12,14 @@ var path = require('path');
 var bcrypt = require('bcrypt');
 
 //email
-const sendmail = require('sendmail')();
+const nodemailer = require('nodemailer');
+var transporter = nodemailer.createTransport({
+    service: config.storeEmailService,
+    auth: {
+        user: config.storeEmailUser,
+        pass: config.storeEmailPass
+    }
+});
 
 //http server
 var http = require('http');
@@ -42,7 +49,7 @@ server.use(bodyParser.urlencoded({ extended: false }));
 server.use(bodyParser.json());
 
 //stripe for payment processing
-var stripe = require('stripe')("sk_test_AbLFTbzSIGCoNxJwixfU8OgG");
+var stripe = require('stripe')(config.stripekey);
 
 // =========Server Routes=========
 
@@ -227,15 +234,22 @@ server.post('/api/checkout', function (request, response) {
                     var emailhtml = '';
 
                     //send email confirmation
-                    sendmail({
-                        from: config.orderEmail,
-                        to: newOrder.email,
-                        subject: 'Your ' + config.storeName + 'order',
+                    let emailOptions ={
+                        from: config.storeEmailUser,
+                        to: order.email,
+                        subject: config.storeName + ' order confirmation',
                         text:emailtext,
                         html:emailhtml
-                    }, function(err, reply) {
-                        console.log(err && err.stack);
-                    });
+                    }
+
+                    transporter.sendMail(emailOptions,(err,info)=>{
+                        if(err){
+                            console.log(err)
+                        }else{
+                            console.log('Message sent: ' + info.response)
+                        }
+                    })
+
                 }
             })            
         }
@@ -243,16 +257,22 @@ server.post('/api/checkout', function (request, response) {
 })
 
 //contact email 
-server.post('/api/updateOrder',function(request,response){
-    //send email confirmation
-    sendmail({
+server.post('/api/contact',function(request,response){
+    //send contact
+    let emailOptions ={
         from: request.body.email,
-        to: config.contactEmail,
-        subject: 'Contact from website',
+        to: config.storeEmailUser,
+        subject: config.storeName + ' Contact',
         text:request.body.body
-    }, function(err, reply) {
-        console.log(err && err.stack);
-    });
+    }
+
+    transporter.sendMail(emailOptions,(err,info)=>{
+        if(err){
+            console.log(err)
+        }else{
+            console.log('Message sent: ' + info.response)
+        }
+    })
 })
 
 //update existing product in database
