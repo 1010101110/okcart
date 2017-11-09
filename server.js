@@ -20,6 +20,11 @@ var transporter = nodemailer.createTransport({
         pass: config.storeEmailPass
     }
 });
+var orderemail = fs.readFileSync( path.join(__dirname, '/email/orderemail.html') ,{encoding:"utf8"})
+var orderemailitem = fs.readFileSync( path.join(__dirname, '/email/orderemailitem.html'),{encoding:"utf8"})
+var orderemailimg = fs.readFileSync( path.join(__dirname, '/email/orderemailimage.gif'))
+var shippedemail = fs.readFileSync( path.join(__dirname, '/email/shippedemail.html') ,{encoding:"utf8"})
+var shippedemailimg = fs.readFileSync( path.join(__dirname, '/email/shipping.gif'))
 
 //http server
 var http = require('http');
@@ -70,6 +75,8 @@ server.use('/dist', express.static(
 // server.get('/settings', function (req, res) {
 //     res.end(require("config.json"));
 // });
+
+//file upload
 server.post('/api/upload',function(request,response){
     var paths = []
     var form = new formidable.IncomingForm()
@@ -214,32 +221,42 @@ server.post('/api/checkout', function (request, response) {
                     }, this);
 
                     //pass completed order back to client
-                    response.json({order:newOrder});                    
-                    
-                    //plaintext email (incase user has html mail disabled?)
-                    var emailtext = 'Thanks for your order! \n \n '
-                         + newOrder.address.name +'\n'
-                         + newOrder.address.street +'\n'
-                         + newOrder.address.apt +'\n'
-                         + newOrder.address.city +'\n'
-                         + newOrder.address.state +'\n'
-                         + newOrder.address.zip +'\n \n';
-                    newOrder.cart.forEach(function(element) {
-                        emailtext += (element.quantity + 'x ' + element.name + ' '  + (element.price * 100) + '\n');
-                    }, this);
-                    emailtext += '\n \n';
-                    emailtext += 'Total: ' + (newOrder.charge.amount * 100);
+                    response.json({order:newOrder})
 
                     //html email
-                    var emailhtml = '';
+                    let emailhtml = orderemail
+
+                    //order
+                    emailhtml = emailhtml.replace('%%storename%%',config.storeName)
+                    emailhtml = emailhtml.replace('%%storename%%',config.storeName)
+                    emailhtml = emailhtml.replace('%%date%%', new Date(newOrder.charge.created*1000).toDateString())
+                    emailhtml = emailhtml.replace('%%ordertotal%%',newOrder.total/100)
+
+                    //order items
+                    let orderitems = ''
+                    newOrder.cart.forEach(function(element) {
+                        let oitem = orderemailitem                    
+                        oitem = oitem.replace('%%item.name%%',element.name)
+                        oitem = oitem.replace('%%item.qty%%',element.quantity)
+                        oitem = oitem.replace('%%item.price%%',element.price/100)
+                        oitem = oitem.replace('%%item.href%%', request.protocol + '://' + request.get('host') + '/product/'+element.name)
+                        orderitems += oitem
+                    })
+                    emailhtml = emailhtml.replace('%%orderitems%%',orderitems)
 
                     //send email confirmation
                     let emailOptions ={
                         from: config.storeEmailUser,
                         to: order.email,
                         subject: config.storeName + ' order confirmation',
-                        text:emailtext,
-                        html:emailhtml
+                        html: emailhtml,
+                        attachments: [
+                            {
+                                filename: 'okok.gif',
+                                path: __dirname + '/email/orderemailimage.gif',
+                                cid: 'orderimage@okok.com'
+                            }
+                        ]
                     }
 
                     transporter.sendMail(emailOptions,(err,info)=>{
@@ -267,13 +284,55 @@ server.post('/api/contact',function(request,response){
     })
 })
 
-//update existing product in database
+//update existing order in database
 server.post('/api/updateOrder',function(request,response){
-    //update db
+    //check for status change
+    orders.findOne({_id:request.body._id},(err,doc)=>{
+        //order is shipped!
+        if(doc.status === "created" && request.body.status === "shipped"){
+            //send email
+            let emailhtml = shippedemail
+            emailhtml = emailhtml.replace('%%storename%%',config.storeName)
+            emailhtml = emailhtml.replace('%%storename%%',config.storeName)
+            emailhtml = emailhtml.replace('%%date%%', new Date().toDateString())
+            emailhtml = emailhtml.replace('%%shippingco%%',request.body.trackingco)
+            emailhtml = emailhtml.replace('%%tracking%%',request.body.trackingnum)
+            
+            let emailOptions ={
+                from: config.storeEmailUser,
+                to: request.body.email,
+                subject: config.storeName + ' order shipped',
+                html: emailhtml,
+                attachments: [
+                    {
+                        filename: 'shipimage.gif',
+                        path: __dirname + '/email/shipping.gif',
+                        cid: 'shipimage@okok.com'
+                    }
+                ]
+            }
+
+            transporter.sendMail(emailOptions,(err,info)=>{
+                if(err) console.log(err)
+            })
+            
+        }
+
+        //order is refunded!
+        if((doc.status === "created" || doc.status === "shipped") && request.body.status === "refunded"){
+            //refund stripe
+
+            //send email
+
+        }
+    })
+
+    //update order in db
     orders.update({_id:request.body._id},
     { $set: {
         status:request.body.status,
-        tracking:request.body.tracking
+        trackingnum:request.body.trackingnum,
+        trackingco:request.body.trackingco
     }},{},function(err,num){
         if(err) console.log(err)
         response.end()
@@ -289,8 +348,11 @@ server.get('/api/auth', function (request, response) {
         authtimeout = true;
         setTimeout(function() {
             authtimeout = false;
-        }, 1000);
+        }, 500);
 
+        //use bcrypt.hash to generate your own password and store it in config
+        //if you ever forget your password you will have to redo this step
+        //default password , hash : lol , $2a$10$1hFcepwZlTmpmrM.QTvZtuczVJswgTUG8pn9nlidS39rEJ/aK7U2.
         if(checkpass(request.query.pass)){
             response.end("good")
         }else{
