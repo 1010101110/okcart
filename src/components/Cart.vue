@@ -54,8 +54,9 @@
                     </v-form>
                     <v-btn color="primary" @click.native="step = 3">Continue</v-btn>
                 </v-stepper-content>
-                <v-stepper-content step="3">
+                <v-stepper-content step="3">                    
                     <p>Order Total: {{total}}</p>
+                    <img class="mt-2" src="/assets/stripe.png">
                     <div class="ccinput">
                         <label for="card-element">
                             Credit or debit card
@@ -69,12 +70,10 @@
                             <span @click="step=err.step">{{err.text}}</span>
                         </p>
                         <!-- payment logo -->
-                        <img class="mt-2" src="/assets/stripe.png">                            
-                        <img class="mt-2" src="/assets/ssl.png">
                     </div>
                     <transition name="fade" mode="out-in">
-                        <v-btn color="primary" @click.native="checkout()" v-if="!cartloading">Place Order</v-btn>
-                        <v-progress-circular indeterminate primary v-bind:size="70" v-else></v-progress-circular>
+                        <v-btn large color="accent" @click.native="checkout()" v-if="!cartloading">Place Order</v-btn>
+                        <v-progress-circular indeterminate primary :size="50" v-else></v-progress-circular>
                     </transition>
                 </v-stepper-content>
             </v-stepper>
