@@ -25,7 +25,7 @@
                 <h6>Summary</h6>
                 <p>
                     Shipping: {{order.shiptotal}}<br>
-                    Total: {{order.total}}
+                    Total: {{total}}
                 </p>
             </v-flex>
             <v-flex xs12>
