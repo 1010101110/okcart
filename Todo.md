@@ -2,15 +2,6 @@
 
 backend
 
-    orders
-
-        set status
-        set tracking
-        expandable row!?
-        shipped email
-        canceled email + refund charges
-
-
     settings
 
         consolidate settings
@@ -19,7 +10,7 @@ deploy to vps
 
 order
 
-    images
+    print images
     total
 
 
