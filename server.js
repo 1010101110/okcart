@@ -179,8 +179,8 @@ server.post('/api/checkout', function (request, response) {
     // Create+Send Stripe Charge (see stripe api)
     var charge = stripe.charges.create({
         amount: request.body.total,
-        currency: "usd",
-        description: request.body.email + " order from " + "mystore",
+        currency: config.currency,
+        description: request.body.email + " order from " + config.storeName,
         source: request.body.token.id
     }, function(err, charge) {
         if(err){
