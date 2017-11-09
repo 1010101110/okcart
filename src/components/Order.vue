@@ -5,7 +5,8 @@
         <v-layout row wrap>
             <v-flex xs12>
                 Order# {{order._id}}<br>
-                Ordered On: {{new Date(order.charge.created*1000).toLocaleString()}}
+                Ordered On: {{new Date(order.charge.created*1000).toLocaleString()}}<br>
+                Status: {{order.status}}
             </v-flex>
             <v-flex xs12 sm4>
                 <h6>Payment</h6>
