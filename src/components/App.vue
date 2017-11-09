@@ -3,7 +3,7 @@
     <v-navigation-drawer
       persistent
       clipped
-      enable-resize-watcher
+      disable-route-watcher
       v-model="drawer"
       app
     >

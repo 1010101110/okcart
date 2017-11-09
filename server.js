@@ -395,8 +395,7 @@ server.get('/api/auth', function (request, response) {
 
 function checkpass(pass){
     //use bcrypt.hash to generate your own password and store it in config
-    //if you ever forget your password you will have to redo this step
-    //default password , hash: lol , $2a$10$1hFcepwZlTmpmrM.QTvZtuczVJswgTUG8pn9nlidS39rEJ/aK7U2.
+    //default password: "lol"
     return bcrypt.compareSync(pass,config.adminPassHash);
 }
 
