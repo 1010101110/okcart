@@ -25,6 +25,8 @@ var orderemailitem = fs.readFileSync( path.join(__dirname, '/email/orderemailite
 var orderemailimg = fs.readFileSync( path.join(__dirname, '/email/orderemailimage.gif'))
 var shippedemail = fs.readFileSync( path.join(__dirname, '/email/shippedemail.html') ,{encoding:"utf8"})
 var shippedemailimg = fs.readFileSync( path.join(__dirname, '/email/shipping.gif'))
+var refundemail = fs.readFileSync( path.join(__dirname, '/email/refundemail.html') ,{encoding:"utf8"})
+var refundemailimg = fs.readFileSync( path.join(__dirname, '/email/refund.gif'))
 
 //http server
 var http = require('http');
@@ -321,9 +323,35 @@ server.post('/api/updateOrder',function(request,response){
         //order is refunded!
         if((doc.status === "created" || doc.status === "shipped") && request.body.status === "refunded"){
             //refund stripe
+            stripe.refunds.create({
+                charge: request.body.charge.id
+            },(err,refund)=>{
+                if(err) console.log(err)
+                //send email
+                let emailhtml = refundemail
+                emailhtml = emailhtml.replace('%%storename%%',config.storeName)
+                emailhtml = emailhtml.replace('%%date%%', new Date().toDateString())
+                emailhtml = emailhtml.replace('%%amount%%',refund.amount/100)
+                emailhtml = emailhtml.replace('%%ordernum%%',request.body._id)
 
-            //send email
-
+                let emailOptions ={
+                    from: config.storeEmailUser,
+                    to: request.body.email,
+                    subject: config.storeName + ' order refund',
+                    html: emailhtml,
+                    attachments: [
+                        {
+                            filename: 'refund.gif',
+                            path: __dirname + '/email/refund.gif',
+                            cid: 'refund@okok.com'
+                        }
+                    ]
+                }
+    
+                transporter.sendMail(emailOptions,(err,info)=>{
+                    if(err) console.log(err)
+                })                
+            })
         }
     })
 
