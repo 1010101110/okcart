@@ -5,29 +5,32 @@ backend
     orders
 
         set status
+        set tracking
+        expandable row!?
+        shipped email
+        canceled email + refund charges
+
 
     settings
 
         consolidate settings
 
-pages
-
-    about
-    contact
-
 deploy to vps
 
-email
+order
 
-    confirm email
-    shipped email
-    canceled email + refund charges
+    images
+    total
+
 
 update readme
 
     config
+    https
     index (icon and title)
+    theme
     stripe tokens (server, cart)
+    email
 
 setup tutorial video
 
