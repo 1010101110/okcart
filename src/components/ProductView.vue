@@ -8,24 +8,23 @@
             </v-flex>
             <v-flex xs12 sm6>
                 <v-card class="ma-2">
-                    <v-card-title>
-                        <h5>{{item.name}}</h5>
-                    </v-card-title>
-                    <v-card-text>
+                    <v-card-row>
+                        <div class="headline text-xs-center">{{item.name}}</div>                    
+                        <v-spacer></v-spacer>
                         <v-text-field
                             multi-line
+                            box
                             readonly
                             auto-grow
                             v-model="item.description"
                         >
                         </v-text-field>
-                    </v-card-text>
-                    <v-card-row actions>
-                        <span>{{item.stock > 0 ? "" : "out of stock"}}</span>
                         <v-spacer></v-spacer>
-                        <span>price: {{formatPrice(item.price)}}</span>
+                        <span class="pa-2">{{item.stock > 0 ? "" : "out of stock"}}</span>
                         <v-spacer></v-spacer>
-                        <span v-if="item.shipping">shipping: {{formatPrice(item.shipping)}}</span>
+                        <span class="pa-2">price: {{formatPrice(item.price)}}</span>
+                        <v-spacer></v-spacer>
+                        <span class="pa-2" v-if="item.shipping">shipping: {{formatPrice(item.shipping)}}</span>
                         <v-spacer></v-spacer>
                         <v-btn color="primary" v-on:click.native="additemtocart(item)" :disabled="item.stock > 0 ? false:true">add to cart</v-btn>
                     </v-card-row>
