@@ -11,7 +11,7 @@
                 <v-tabs-items>
                     <v-tabs-content id="products">
                         <v-layout row wrap>
-                                <v-flex xs12="pa-2">
+                                <v-flex xs12 class="pa-2">
                                     <v-btn color="primary" @click.native="addProduct()">Add Product</v-btn>
                                 </v-flex>
                                 <v-flex xs12 sm6 md6 lg4 xl3 class="pa-2" v-for="item in products" :key="item._id">
@@ -39,25 +39,52 @@
                         <v-data-table
                             :headers="orderheaders"
                             :items="orders"
-                            class="t"
+                            item-key="_id"
+                            hide-actions
+                            expand
                         >
                             <template slot="items" scope="props">
-                                <td>{{props.item._id}}</td>
-                                <td class="text-xs-right">{{new Date(props.item.charge.created*1000).toLocaleString()}}</td>
-                                <td class="text-xs-right">{{props.item.email}}</td>
-                                <td class="text-xs-right"> 
-                                    {{props.item.address.name}}<br>
-                                    {{props.item.address.street}} {{props.item.address.apt}}<br>
-                                    {{props.item.address.city}} {{props.item.address.state}} {{props.item.address.zip}}<br>
-                                    {{props.item.address.country}}
-                                </td>
-                                <td>
-                                    <v-text-field
-                                        v-model="props.item.status"
-                                        hint="created,shipped,refunded"
-                                        persistent-hint
-                                    ></v-text-field>
-                                </td>
+                                <tr @click="props.expanded = !props.expanded">
+                                    <td class="text-xs-right">{{props.item._id}}</td>
+                                    <td class="text-xs-right">{{new Date(props.item.charge.created*1000).toLocaleString()}}</td>
+                                    <td class="text-xs-right">{{props.item.email}}</td>
+                                    <td class="text-xs-right"> 
+                                        {{props.item.address.name}}<br>
+                                        {{props.item.address.street}} {{props.item.address.apt}}<br>
+                                        {{props.item.address.city}} {{props.item.address.state}} {{props.item.address.zip}}<br>
+                                        {{props.item.address.country}}
+                                    </td>
+                                </tr>
+                            </template>
+                            <template slot="expand" scope="props">
+                                <v-card flat>
+                                    <v-layout row wrap>
+                                        <v-flex xs12>
+                                            <v-select
+                                                    :items="orderstatus"
+                                                    v-model="props.item.status"
+                                                    label="status"
+                                            ></v-select>
+                                        </v-flex>
+                                        <v-flex xs12 sm6>
+                                            <v-text-field
+                                                v-model="props.item.trackingnum"
+                                                name="trackingnum"
+                                                label="tracking number"
+                                            ></v-text-field>
+                                        </v-flex>
+                                        <v-flex xs12 sm6>
+                                            <v-text-field
+                                                v-model="props.item.trackingco"
+                                                name="trackingco"
+                                                label="tracking company"
+                                            ></v-text-field>
+                                        </v-flex>
+                                        <v-flex xs12>
+                                            <v-btn icon @click.native="updateOrder(props.item)"><v-icon>save</v-icon></v-btn>
+                                        </v-flex>
+                                    </v-layout>                                
+                                </v-card>
                             </template>
                         </v-data-table>
                     </v-tabs-content>
@@ -82,7 +109,7 @@
         <div v-else>
             <!-- login -->
             <v-text-field v-model="pass" @keyup.13="auth()" label="Enter password" type="password"></v-text-field>
-            <v-btn color="primary" light @click.native="auth()" v-if="!loading">Authenticate</v-btn>
+            <v-btn color="primary" dark @click.native="auth()" v-if="!loading">Authenticate</v-btn>
             <v-progress-circular indeterminate primary v-bind:size="70" v-else></v-progress-circular>
         </div>
     </div>
@@ -97,11 +124,10 @@ export default {
   data:()=>{return {
       pass:"",
       orderheaders:[
-          {text:"ID",value:"_id",align:"left"},
+          {text:"id",value:"id"},
           {text:"created",value:"created"},
           {text:"email",value:"email"},
-          {text:"address",value:"address"},
-          {text:"status",value:"status"},
+          {text:"address",value:"address"}
       ],
       orderstatus:["created","shipped","refunded"],
       drag:false,
