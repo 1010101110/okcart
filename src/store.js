@@ -4,8 +4,6 @@ import Vuex from 'vuex'
 Vue.use(Vuex);
 //router object for nav actions
 import {router} from './main.js'
-//config
-var config = require("../config.json")
 
 //global store object
 const store = new Vuex.Store({
@@ -15,7 +13,7 @@ const store = new Vuex.Store({
         cart:[],
         order:{},
         //helpers
-        store_name:config.storeName,
+        store_name:'mystore',
         currency: Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD',
@@ -29,109 +27,109 @@ const store = new Vuex.Store({
     },
     getters: {
         currency:(state,getters)=>{
-            return state.currency;
+            return state.currency
         },
         products:(state,getters)=>{
             //list of products
-            return state.products;
+            return state.products
         },
         product:(state,getters)=>{
             //one product
-            return state.products.find(product=>product.name === state.route.params.name);
+            return state.products.find(product=>product.name === state.route.params.name)
         },                
         cart:(state,getters)=>{
             //list of cart items
-            return state.cart;
+            return state.cart
         },
         cartQuantity:(state,getters)=>{
             //number of items in cart
             var quantity = 0;
             for (var i = 0; i < state.cart.length; i++) {
-                quantity += state.cart[i].quantity;
+                quantity += state.cart[i].quantity
             }
             return quantity;
         },
         cartIsEmpty:(state,getters)=>{
             //bool cart is empty
-            return state.cart.length == 0;
+            return state.cart.length == 0
         },
         cartSubTotal:(state,getters)=>{
             //price of items in cart
-            var subtotal = 0;
+            var subtotal = 0
             for (var i = 0; i < state.cart.length; i++) {
                 //have to do multiply/divide 100 because javascript one-cent errors with decimals
-                subtotal += (state.cart[i].quantity * parseInt(state.cart[i].price));
+                subtotal += (state.cart[i].quantity * parseInt(state.cart[i].price))
             }
-            return state.currency.format(subtotal/100);
+            return state.currency.format(subtotal/100)
         },
         cartShipping:(state,getters)=>{
             //price of items in cart
-            var shipTotal = 0;
+            var shipTotal = 0
             for (var i = 0; i < state.cart.length; i++) {
                 //have to do multiply/divide 100 because javascript one-cent errors with decimals
-                shipTotal += (state.cart[i].quantity * parseInt(state.cart[i].shipping));
+                shipTotal += (state.cart[i].quantity * parseInt(state.cart[i].shipping))
             }
-            return state.currency.format(shipTotal/100);
+            return state.currency.format(shipTotal/100)
         },
         cartTotal:(state,getters)=>{
-            var Total = 0;
+            var Total = 0
             for (var i = 0; i < state.cart.length; i++) {
                 //have to do multiply/divide 100 because javascript one-cent errors with decimals
-                Total += (state.cart[i].quantity * (parseInt(state.cart[i].shipping)+parseInt(state.cart[i].price/1)));
+                Total += (state.cart[i].quantity * (parseInt(state.cart[i].shipping)+parseInt(state.cart[i].price/1)))
             }
-            return state.currency.format(Total/100);
+            return state.currency.format(Total/100)
         },
         checkoutTotal:(state,getters)=>{
             //do not format this one. we need cents value for stripe checkout
-            var Total = 0;
+            var Total = 0
             for (var i = 0; i < state.cart.length; i++) {
                 //have to do multiply/divide 100 because javascript one-cent errors with decimals
-                Total += (state.cart[i].quantity * (parseInt(state.cart[i].shipping)+parseInt(state.cart[i].price)));
+                Total += (state.cart[i].quantity * (parseInt(state.cart[i].shipping)+parseInt(state.cart[i].price)))
             }
-            return Total;
+            return Total
         },
         orderTotal:(state,getters)=>{
-            return state.currency.format(state.order.charge.amount/100);
+            return state.currency.format(state.order.charge.amount/100)
         },
         loading:(state,getters)=>{
-            return state.loading;
+            return state.loading
         },
         order:(state,getters)=>{
-            return state.order;
+            return state.order
         },
         orders:(state,getters)=>{
-            return state.orders;
+            return state.orders
         },
         authenticated:(state,getters)=>{
-            return state.authenticated;
+            return state.authenticated
         }
     },
     mutations: {
         setproducts(state,products){
-            state.products = products;
+            state.products = products
         },
         additemtocart(state,product){
             if(product.stock>0){
                 //decrement from stock
-                product.stock -= 1;
+                product.stock -= 1
 
                 //check if product is already in cart
-                var found = false;
+                var found = false
                 for (var i = 0; i < state.cart.length; i++) {
-                    var cartitem = state.cart[i];
+                    var cartitem = state.cart[i]
 
                     //add existing item to cart
                     if (cartitem._id === product._id) {
-                        found = true;                                
-                        cartitem.quantity += 1;
-                        Vue.set(state.cart, i, cartitem);
+                        found = true                       
+                        cartitem.quantity += 1
+                        Vue.set(state.cart, i, cartitem)
                     }
                 }
 
                 //add new item to cart
                 if (!found) {
-                    product.quantity = 1;
-                    state.cart.push(product);
+                    product.quantity = 1
+                    state.cart.push(product)
                 }
 
             }else{
@@ -141,18 +139,18 @@ const store = new Vuex.Store({
         },
         removeitemfromcart(state,product){
             for (var i = 0; i < state.cart.length; i++) {
-                var cartitem = state.cart[i];
+                var cartitem = state.cart[i]
 
                 //remove item from cart
                 if (cartitem._id === product._id) {                              
-                    cartitem.quantity -= 1;
-                    cartitem.stock += 1;
+                    cartitem.quantity -= 1
+                    cartitem.stock += 1
                     if(cartitem.quantity > 0){
                         //decrement quantity
-                        Vue.set(state.cart, i, cartitem);
+                        Vue.set(state.cart, i, cartitem)
                     } else {
                         //remove item from cart
-                        state.cart.splice(i,1);
+                        state.cart.splice(i,1)
                     }
                     
                 }
@@ -160,28 +158,28 @@ const store = new Vuex.Store({
         },
         deleteitemfromcart(state,product){
             for (var i = 0; i < state.cart.length; i++) {
-                var cartitem = state.cart[i];
+                var cartitem = state.cart[i]
                 if (cartitem._id === product._id) {
-                    cartitem.stock += cartitem.quantity;
-                    cartitem.quantity = 0;
-                    state.cart.splice(i,1);
+                    cartitem.stock += cartitem.quantity
+                    cartitem.quantity = 0
+                    state.cart.splice(i,1)
                 }
             }
         },
         setcart(state,val){
-            state.cart = val;
+            state.cart = val
         },
         setloading(state,val){
-            state.loading = val;
+            state.loading = val
         },
         setorder(state,val){
-            state.order = val;
+            state.order = val
         },
         setorders(state,val){
-            state.orders = val;
+            state.orders = val
         },
         setauthenticated(state,val){
-            state.authenticated = val;
+            state.authenticated = val
         },
         setdrawer(state,val){
             state.drawer = val
@@ -235,37 +233,37 @@ const store = new Vuex.Store({
             Vue.http.post('/api/checkout',postdata).then(function(response){
                 if(response.data.order){
                     //reset cart
-                    commit('setcart',[]);
+                    commit('setcart',[])
                     //reset products
-                    commit('setproducts',[]);
+                    commit('setproducts',[])
                     //navigate to order completed page
-                    router.push('/order/'+response.data.order._id);
+                    router.push('/order/'+response.data.order._id)
                     //refresh products
                     setTimeout(function(){
-                        store.dispatch('fetchProducts');
+                        store.dispatch('fetchProducts')
                     },50)
                 }else{
                     //error of some kind
-                    console.log(response);
+                    console.log(response)
                 }
             },function(response){
                 //error of some kind
                 console.log(response)
             }).then(function(){               
-                commit('setloading',false);
+                commit('setloading',false)
             });            
         },
         auth({commit,state}, payload){
             //show loading
-            commit('setloading',true);
+            commit('setloading',true)
             
             //send pass to server to try and authenticate
             Vue.http.get('/api/auth?pass='+payload.pass).then(function(response){
                 if(response.ok && response.body === "good"){
                     commit('setauthenticated',true);
                     //refresh data
-                    store.dispatch('fetchProducts');
-                    store.dispatch('fetchOrders',{pass:payload.pass});
+                    store.dispatch('fetchProducts')
+                    store.dispatch('fetchOrders',{pass:payload.pass})
                 }
             }).then(function(){
                 commit('setloading',false);
@@ -285,7 +283,7 @@ const store = new Vuex.Store({
             Vue.http.get('/api/addProduct').then(function(response){
                 if(response.ok){
                     //refresh data
-                    store.dispatch('fetchProducts');
+                    store.dispatch('fetchProducts')
                 }else{
                     console.log(response)
                 }
@@ -295,7 +293,7 @@ const store = new Vuex.Store({
             Vue.http.post('/api/updateProduct',payload).then(function(response){
                 if(response.ok){
                     //refresh data
-                    store.dispatch('fetchProducts');
+                    store.dispatch('fetchProducts')
                 }else{
                     console.log(response)
                 }
@@ -304,8 +302,8 @@ const store = new Vuex.Store({
         updateOrder({commit,state}, payload){
             Vue.http.post('/api/updateOrder',payload).then(function(response){
                 if(response.ok){
-                    //hmmm
-                    return
+                    //refresh data
+                    console.log('order updated')
                 }else{
                     console.log(response)
                 }
