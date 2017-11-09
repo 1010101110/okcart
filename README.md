@@ -6,7 +6,7 @@
     Database = nedb
     Front end = vue + vuex + vue-router
     Style = vuetify
-    email = sendmail
+    email = nodemailer
     payments = stripe
 
 ## Commands
