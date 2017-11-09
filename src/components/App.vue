@@ -56,7 +56,7 @@ export default {
   created () {
       //init the products array
       store.dispatch('fetchProducts')
-      //need to get cart from local storage and make sure it's valid
+      document.title = store.state.store_name
   },
   computed:{
     drawer:{ 
