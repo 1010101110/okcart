@@ -1,17 +1,6 @@
 # TODO
 
-backend
-
-    settings
-
-        consolidate settings
-
 deploy to vps
-
-order
-
-    print images
-    total
 
 
 update readme
