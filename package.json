@@ -11,6 +11,7 @@
     "bcrypt": "*",
     "body-parser": "*",
     "express": "*",
+    "formidable": "*",
     "nedb": "*",
     "nodemailer": "*",
     "stripe": "*",
