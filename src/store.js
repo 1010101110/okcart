@@ -201,7 +201,7 @@ const store = new Vuex.Store({
             })
         },
         fetchOrder({commit,state}, payload){
-            Vue.http.post('/api/order/'+payload).then(function(response){
+            Vue.http.get('/api/order/'+payload).then(function(response){
                 commit('setorder',response.body);
             },function(response){
                 console.error('fetchOrder: ' + response.statusText);
