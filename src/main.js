@@ -68,11 +68,17 @@ export const router = new Router({
 import {sync} from 'vuex-router-sync'
 sync(store,router)
 
-//Vuetify
+//Vuetify + theme
 import Vuetify from 'vuetify'
-Vue.use(Vuetify)
-//Vuetify theme
-require('./stylus/main.styl')
+Vue.use(Vuetify,{
+    theme:{
+        primary: '#616161',
+        accent: '#E53935',
+        secondary: '#9E9E9E',
+        error: '#F44336'
+    }
+})
+
 
 //init app
 const app = new Vue({

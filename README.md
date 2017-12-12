@@ -4,7 +4,7 @@
 
     Webserver = node + express
     Database = nedb
-    Front end = vue + vuex + vue-router
+    Front end = vue
     Style = vuetify
     email = nodemailer
     payments = stripe
@@ -100,10 +100,12 @@ npm install -g pm2
 * stripe public key (can search "var stripe")
 
 ## Build the application
-if you make changes you can rebuild as much as you want. server will pick them up just need to refresh the page.
+Build compiles the Vue application, aka the web pages. This does not affect the server or asset files (picutes etc).
+
 ```bash
 npm run build
 ```
+if you make changes you can rebuild as much as you want. server will pick them up just need to refresh the browser.
 
 ## Setup https
 you must have a domain name pointing to the server's ip for this to work. (set the server ip address up with your domain host) (this can take a few hours for the domain to point to your droplet)
@@ -148,3 +150,77 @@ shtudown -r now
 
 * login to the backend and get your products setup
 * https://yourdomain.com/admin
+
+## Stripe
+create account
+
+link your checking / business checking account
+
+get keys for okcart config in the API menu
+
+## Theme
+You can edit theme colors via vuetify.
+
+color codes see https://material.io/guidelines/style/color.html
+
+We mainly only use the primary color as the page is so simple, you can go through and edit each component to use other colors if you want.
+```js
+// src/main.js
+Vue.use(Vuetify,{
+    theme:{
+        primary: '#616161',
+        accent: '#E53935',
+        secondary: '#9E9E9E',
+        error: '#F44336'
+    }
+})
+
+```
+
+## Adding custom pages
+If you need more pages it is pretty simple to add. Here we will create an example News page.
+
+1. create file.vue in src/components. can edit hellow world to any HTML or see vuetify docs for pretty components.
+```html
+// src/components/News.Vue
+
+<template>
+    <div :key="news_view">
+        <h1>hello world</h1>
+    </div>
+</template>
+
+<script>
+import store from './../store.js'
+
+export default {
+  name: 'News'
+}
+</script>
+
+<style scoped>
+</style>
+```
+
+2. change key and name in above to something unique. like News for a news page. It needs to be unique.
+
+3. in main.js import the file and add the page to router
+```js
+// src/main.js
+
+import News from './components/News.vue'
+
+// add route to array
+
+  routes: [
+    {
+        path: '/news',
+        name: 'News',
+        component: News
+    },
+  ]
+```
+4. rebuild the app
+```bash
+npm run build
+```
