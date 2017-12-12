@@ -107,6 +107,8 @@ npm run build
 
 ## Setup https
 you must have a domain name pointing to the server's ip for this to work. (set the server ip address up with your domain host) (this can take a few hours for the domain to point to your droplet)
+
+certbot + letsencrypt free ssl certificate
 ```bash
 wget https://dl.eff.org/certbot-auto  
 chmod a+x certbot-auto
