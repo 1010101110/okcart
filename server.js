@@ -34,9 +34,9 @@ var http = require('http');
 //https server
 var https = require('https');
 //you should get your certs from lets encrypt / certbot once you have your domain setup
-var privateKey = fs.readFileSync(path.join(__dirname, '/cert/server.key'), 'utf8');
-var certificate = fs.readFileSync(path.join(__dirname, '/cert/server.crt'), 'utf8');
-var credentials = { key: privateKey, cert: certificate, passphrase:'monki' };
+var privateKey = fs.readFileSync(path.join(__dirname, '/cert/privkey.pem'), 'utf8');
+var certificate = fs.readFileSync(path.join(__dirname, '/cert/fullchain.pem'), 'utf8');
+var credentials = { key: privateKey, cert: certificate };
 
 // Create an express server
 var express = require('express')
