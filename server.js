@@ -73,11 +73,6 @@ server.use('/dist', express.static(
     path.resolve(__dirname, 'dist')
 ));
 
-//settings
-// server.get('/settings', function (req, res) {
-//     res.end(require("config.json"));
-// });
-
 //file upload
 server.post('/api/upload',function(request,response){
     var paths = []
@@ -98,6 +93,28 @@ server.post('/api/upload',function(request,response){
     form.parse(request)
 })
 
+//contact email 
+server.post('/api/contact',function(request,response){        
+    if(checkpass(request.body.pass)){
+        let emailOptions ={
+            replyTo: request.body.email.email,
+            to: config.storeEmailUser,
+            subject: config.storeName + ' Contact',
+            text:request.body.email.body
+        }
+
+        transporter.sendMail(emailOptions,(err,info)=>{
+            if(err) console.log(err)
+            response.end()
+        })
+    }else{
+        console.log('failed auth')
+        response.end()
+    }
+})
+
+/////////////////////////PRODUCTS///////////////////////////////
+
 //return json products find from database
 server.get('/api/products', function (request, response) {
     products.find({}, function (err, docs) {
@@ -109,49 +126,64 @@ server.get('/api/products', function (request, response) {
 
 //add product to database
 server.get('/api/addProduct',function (request,response) {
-    var doc = {
-        name:"",
-        stock:0,
-        price:0,
-        shipping:0,
-        images:["/assets/default.jpg"]
+    if(checkpass(request.body.pass)){
+        var doc = {
+            name:"",
+            stock:0,
+            price:0,
+            shipping:0,
+            images:["/assets/default.jpg"]
+        }
+        products.insert(doc,function(err,inserted){
+            if(err) console.log(err)
+            response.json(doc)
+        })
+    }else{
+        response.end()
     }
-    products.insert(doc,function(err,inserted){
-        if(err) console.log(err)
-        response.json(doc)
-    })
 })
 
 //update existing product in database
 server.post('/api/updateProduct',function(request,response){    
-    products.update({_id:request.body._id},
-    { $set: {
-        name:request.body.name,
-        stock:request.body.stock,
-        price:request.body.price,
-        shipping:request.body.shipping,
-        description:request.body.description,
-        images:request.body.images,
-        visible:request.body.visible,
-        sort:request.body.sort
-    }},{},function(err,num){
-        if(err) console.log(err)
+    if(checkpass(request.body.pass)){
+        products.update({_id:request.body.product._id},
+        { $set: {
+            name:request.body.product.name,
+            stock:request.body.product.stock,
+            price:request.body.product.price,
+            shipping:request.body.product.shipping,
+            description:request.body.product.description,
+            images:request.body.product.images,
+            visible:request.body.product.visible,
+            sort:request.body.product.sort
+        }},{},function(err,num){
+            if(err) console.log(err)
+            response.end()
+        })
+    }else{
         response.end()
-    })
+    }
 })
 
 //delete product from database
 server.get('/api/deleteProduct/:id',function(request,response){
-    if(request.params.id){
-        products.remove({_id: request.params.id},function(err,num){
-            if(num>0){
-                response.end('good')
-            }else{
-                response.end('fail')
-            }
-        })
+    if(checkpass(request.body.pass)){
+        if(request.params.id){
+            products.remove({_id: request.params.id},function(err,num){
+                if(num>0){
+                    response.end('good')
+                }else{
+                    response.end('fail')
+                }
+            })
+        }
+    }else{
+        response.end()
     }
 })
+
+
+/////////////////////////ORDERS///////////////////////////////
 
 //return json order find in database
 server.get('/api/order/:id', function (request, response) {
@@ -162,8 +194,8 @@ server.get('/api/order/:id', function (request, response) {
 });
 
 //return json orders find from database
-server.get('/api/orders/:pass', function (request, response) {
-    if(checkpass(request.params.pass)){
+server.get('/api/orders', function (request, response) {
+    if(checkpass(request.body.pass)){
         orders.find({},function (err,docs){
             if (err) console.log(err);
             response.json(docs);
@@ -271,100 +303,89 @@ server.post('/api/checkout', function (request, response) {
     });
 })
 
-//contact email 
-server.post('/api/contact',function(request,response){        
-    let emailOptions ={
-        replyTo: request.body.email,
-        to: config.storeEmailUser,
-        subject: config.storeName + ' Contact',
-        text:request.body.body
-    }
-
-    transporter.sendMail(emailOptions,(err,info)=>{
-        if(err) console.log(err)
-        response.end()
-    })
-})
-
 //update existing order in database
 server.post('/api/updateOrder',function(request,response){
-    //check for status change
-    orders.findOne({_id:request.body._id},(err,doc)=>{
-        //order is shipped!
-        if(doc.status === "created" && request.body.status === "shipped"){
-            //send email
-            let emailhtml = shippedemail
-            emailhtml = emailhtml.replace('%%storename%%',config.storeName)
-            emailhtml = emailhtml.replace('%%storename%%',config.storeName)
-            emailhtml = emailhtml.replace('%%date%%', new Date().toDateString())
-            emailhtml = emailhtml.replace('%%shippingco%%',request.body.trackingco)
-            emailhtml = emailhtml.replace('%%tracking%%',request.body.trackingnum)
-            
-            let emailOptions ={
-                from: config.storeEmailUser,
-                to: request.body.email,
-                subject: config.storeName + ' order shipped',
-                html: emailhtml,
-                attachments: [
-                    {
-                        filename: 'shipimage.gif',
-                        path: __dirname + '/email/shipping.gif',
-                        cid: 'shipimage@okok.com'
-                    }
-                ]
-            }
-
-            transporter.sendMail(emailOptions,(err,info)=>{
-                if(err) console.log(err)
-            })
-            
-        }
-
-        //order is refunded!
-        if((doc.status === "created" || doc.status === "shipped") && request.body.status === "refunded"){
-            //refund stripe
-            stripe.refunds.create({
-                charge: request.body.charge.id
-            },(err,refund)=>{
-                if(err) console.log(err)
+    if(checkpass(request.body.pass)){
+        //check for status change    
+        orders.findOne({_id:request.body._id},(err,doc)=>{
+            //order is shipped!
+            if(doc.status === "created" && request.body.status === "shipped"){
                 //send email
-                let emailhtml = refundemail
+                let emailhtml = shippedemail
+                emailhtml = emailhtml.replace('%%storename%%',config.storeName)
                 emailhtml = emailhtml.replace('%%storename%%',config.storeName)
                 emailhtml = emailhtml.replace('%%date%%', new Date().toDateString())
-                emailhtml = emailhtml.replace('%%amount%%',refund.amount/100)
-                emailhtml = emailhtml.replace('%%ordernum%%',request.body._id)
-
+                emailhtml = emailhtml.replace('%%shippingco%%',request.body.trackingco)
+                emailhtml = emailhtml.replace('%%tracking%%',request.body.trackingnum)
+                
                 let emailOptions ={
                     from: config.storeEmailUser,
                     to: request.body.email,
-                    subject: config.storeName + ' order refund',
+                    subject: config.storeName + ' order shipped',
                     html: emailhtml,
                     attachments: [
                         {
-                            filename: 'refund.gif',
-                            path: __dirname + '/email/refund.gif',
-                            cid: 'refund@okok.com'
+                            filename: 'shipimage.gif',
+                            path: __dirname + '/email/shipping.gif',
+                            cid: 'shipimage@okok.com'
                         }
                     ]
                 }
-    
+
                 transporter.sendMail(emailOptions,(err,info)=>{
                     if(err) console.log(err)
-                })                
-            })
-        }
-    })
+                })
+                
+            }
 
-    //update order in db
-    orders.update({_id:request.body._id},
-    { $set: {
-        status:request.body.status,
-        trackingnum:request.body.trackingnum,
-        trackingco:request.body.trackingco
-    }},{},function(err,num){
-        if(err) console.log(err)
+            //order is refunded!
+            if((doc.status === "created" || doc.status === "shipped") && request.body.status === "refunded"){
+                //refund stripe
+                stripe.refunds.create({
+                    charge: request.body.charge.id
+                },(err,refund)=>{
+                    if(err) console.log(err)
+                    //send email
+                    let emailhtml = refundemail
+                    emailhtml = emailhtml.replace('%%storename%%',config.storeName)
+                    emailhtml = emailhtml.replace('%%date%%', new Date().toDateString())
+                    emailhtml = emailhtml.replace('%%amount%%',refund.amount/100)
+                    emailhtml = emailhtml.replace('%%ordernum%%',request.body._id)
+
+                    let emailOptions ={
+                        from: config.storeEmailUser,
+                        to: request.body.email,
+                        subject: config.storeName + ' order refund',
+                        html: emailhtml,
+                        attachments: [
+                            {
+                                filename: 'refund.gif',
+                                path: __dirname + '/email/refund.gif',
+                                cid: 'refund@okok.com'
+                            }
+                        ]
+                    }
+        
+                    transporter.sendMail(emailOptions,(err,info)=>{
+                        if(err) console.log(err)
+                    })                
+                })
+            }
+        })
+
+        //update order in db
+        orders.update({_id:request.body._id},
+        { $set: {
+            status:request.body.status,
+            trackingnum:request.body.trackingnum,
+            trackingco:request.body.trackingco
+        }},{},function(err,num){
+            if(err) console.log(err)
+            response.end()
+        })
+    }else{
         response.end()
-    })
+    }
 })
 
 //Authentication for backend

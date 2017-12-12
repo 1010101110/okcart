@@ -20,6 +20,7 @@ const store = new Vuex.Store({
             minimumFractionDigits: 2,
         }),
         loading:false,
+        pass:'',
         authenticated:false,
         drawer:false,
         //admin data        
@@ -183,6 +184,9 @@ const store = new Vuex.Store({
         },
         setdrawer(state,val){
             state.drawer = val
+        },
+        setpass(state,val){
+            state.pass = val
         }
     },
     actions:{
@@ -201,7 +205,7 @@ const store = new Vuex.Store({
             })
         },
         fetchOrders({commit,state}, payload){
-            Vue.http.get('/api/orders/'+payload.pass).then(function(response){
+            Vue.http.get('/api/orders',{pass:state.pass}).then(function(response){
                 if(response.body){
                     commit('setorders',response.body);
                 }else{                    
@@ -261,16 +265,17 @@ const store = new Vuex.Store({
             Vue.http.get('/api/auth?pass='+payload.pass).then(function(response){
                 if(response.ok && response.body === "good"){
                     commit('setauthenticated',true);
+                    commit('setpass',payload.pass)
                     //refresh data
                     store.dispatch('fetchProducts')
-                    store.dispatch('fetchOrders',{pass:payload.pass})
+                    store.dispatch('fetchOrders')
                 }
             }).then(function(){
                 commit('setloading',false);
             });
         },
         deleteProduct({commit,state}, payload){
-            Vue.http.get('/api/deleteProduct/'+payload).then(function(response){
+            Vue.http.get('/api/deleteProduct/'+payload,{pass:state.pass}).then(function(response){
                 if(response.ok){            
                     //refresh data
                     store.dispatch('fetchProducts');
@@ -280,7 +285,7 @@ const store = new Vuex.Store({
             })
         },
         addProduct({commit,state}){
-            Vue.http.get('/api/addProduct').then(function(response){
+            Vue.http.get('/api/addProduct',{pass:state.pass}).then(function(response){
                 if(response.ok){
                     //refresh data
                     store.dispatch('fetchProducts')
@@ -290,7 +295,7 @@ const store = new Vuex.Store({
             })
         },
         updateProduct({commit,state}, payload){
-            Vue.http.post('/api/updateProduct',payload).then(function(response){
+            Vue.http.post('/api/updateProduct',{pass:state.pass,product:payload}).then(function(response){
                 if(response.ok){
                     //refresh data
                     store.dispatch('fetchProducts')
@@ -300,7 +305,7 @@ const store = new Vuex.Store({
             })
         },
         updateOrder({commit,state}, payload){
-            Vue.http.post('/api/updateOrder',payload).then(function(response){
+            Vue.http.post('/api/updateOrder',{pass:state.pass,order:payload}).then(function(response){
                 if(response.ok){
                     //refresh data
                     console.log('order updated')
@@ -313,7 +318,7 @@ const store = new Vuex.Store({
             return Vue.http.post('/api/upload',payload)
         },
         sendEmail({commit,state}, payload){
-            return Vue.http.post('/api/contact',payload)
+            return Vue.http.post('/api/contact',{pass:state.pass,email:payload})
         }
     },
 });
