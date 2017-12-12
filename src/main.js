@@ -70,6 +70,8 @@ sync(store,router)
 
 //Vuetify + theme
 import Vuetify from 'vuetify'
+import css from './../node_modules/vuetify/dist/vuetify.min.css'
+
 Vue.use(Vuetify,{
     theme:{
         primary: '#616161',
@@ -78,7 +80,6 @@ Vue.use(Vuetify,{
         error: '#F44336'
     }
 })
-
 
 //init app
 const app = new Vue({
