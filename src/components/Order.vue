@@ -66,7 +66,7 @@ export default {
             return store.getters.order;
         },
         total:()=>{
-            return store.getters.formatPrice(this.order.total)
+            return store.getters.formatPrice(store.getters.order.total)
         }
     },
     methods:{
