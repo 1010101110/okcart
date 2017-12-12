@@ -125,7 +125,7 @@ server.get('/api/products', function (request, response) {
 });
 
 //add product to database
-server.get('/api/addProduct',function (request,response) {
+server.post('/api/addProduct',function (request,response) {
     if(checkpass(request.body.pass)){
         var doc = {
             name:"",
@@ -166,7 +166,7 @@ server.post('/api/updateProduct',function(request,response){
 })
 
 //delete product from database
-server.get('/api/deleteProduct/:id',function(request,response){
+server.post('/api/deleteProduct/:id',function(request,response){
     if(checkpass(request.body.pass)){
         if(request.params.id){
             products.remove({_id: request.params.id},function(err,num){
@@ -194,7 +194,7 @@ server.get('/api/order/:id', function (request, response) {
 });
 
 //return json orders find from database
-server.get('/api/orders', function (request, response) {
+server.post('/api/orders', function (request, response) {
     if(checkpass(request.body.pass)){
         orders.find({},function (err,docs){
             if (err) console.log(err);
