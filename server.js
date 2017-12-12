@@ -309,18 +309,18 @@ server.post('/api/updateOrder',function(request,response){
         //check for status change    
         orders.findOne({_id:request.body._id},(err,doc)=>{
             //order is shipped!
-            if(doc.status === "created" && request.body.status === "shipped"){
+            if(doc.status === "created" && request.body.order.status === "shipped"){
                 //send email
                 let emailhtml = shippedemail
                 emailhtml = emailhtml.replace('%%storename%%',config.storeName)
                 emailhtml = emailhtml.replace('%%storename%%',config.storeName)
                 emailhtml = emailhtml.replace('%%date%%', new Date().toDateString())
-                emailhtml = emailhtml.replace('%%shippingco%%',request.body.trackingco)
-                emailhtml = emailhtml.replace('%%tracking%%',request.body.trackingnum)
+                emailhtml = emailhtml.replace('%%shippingco%%',request.body.order.trackingco)
+                emailhtml = emailhtml.replace('%%tracking%%',request.body.order.trackingnum)
                 
                 let emailOptions ={
                     from: config.storeEmailUser,
-                    to: request.body.email,
+                    to: request.body.order.email,
                     subject: config.storeName + ' order shipped',
                     html: emailhtml,
                     attachments: [
@@ -339,10 +339,10 @@ server.post('/api/updateOrder',function(request,response){
             }
 
             //order is refunded!
-            if((doc.status === "created" || doc.status === "shipped") && request.body.status === "refunded"){
+            if((doc.status === "created" || doc.status === "shipped") && request.body.order.status === "refunded"){
                 //refund stripe
                 stripe.refunds.create({
-                    charge: request.body.charge.id
+                    charge: request.body.order.charge.id
                 },(err,refund)=>{
                     if(err) console.log(err)
                     //send email
@@ -350,11 +350,11 @@ server.post('/api/updateOrder',function(request,response){
                     emailhtml = emailhtml.replace('%%storename%%',config.storeName)
                     emailhtml = emailhtml.replace('%%date%%', new Date().toDateString())
                     emailhtml = emailhtml.replace('%%amount%%',refund.amount/100)
-                    emailhtml = emailhtml.replace('%%ordernum%%',request.body._id)
+                    emailhtml = emailhtml.replace('%%ordernum%%',request.body.order._id)
 
                     let emailOptions ={
                         from: config.storeEmailUser,
-                        to: request.body.email,
+                        to: request.body.order.email,
                         subject: config.storeName + ' order refund',
                         html: emailhtml,
                         attachments: [
@@ -374,11 +374,11 @@ server.post('/api/updateOrder',function(request,response){
         })
 
         //update order in db
-        orders.update({_id:request.body._id},
+        orders.update({_id:request.body.order._id},
         { $set: {
-            status:request.body.status,
-            trackingnum:request.body.trackingnum,
-            trackingco:request.body.trackingco
+            status:request.body.order.status,
+            trackingnum:request.body.order.trackingnum,
+            trackingco:request.body.order.trackingco
         }},{},function(err,num){
             if(err) console.log(err)
             response.end()
