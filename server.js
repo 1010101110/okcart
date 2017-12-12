@@ -307,7 +307,7 @@ server.post('/api/checkout', function (request, response) {
 server.post('/api/updateOrder',function(request,response){
     if(checkpass(request.body.pass)){
         //check for status change    
-        orders.findOne({_id:request.body._id},(err,doc)=>{
+        orders.findOne({_id:request.body.order._id},(err,doc)=>{
             //order is shipped!
             if(doc.status === "created" && request.body.order.status === "shipped"){
                 //send email
