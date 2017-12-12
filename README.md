@@ -182,7 +182,7 @@ If you need more pages it is pretty simple to add. Here we will create an exampl
 
 1. create file.vue in src/components. can edit hellow world to any HTML or see vuetify docs for pretty components.
 ```html
-// src/components/News.Vue
+<!-- src/components/News.Vue -->
 
 <template>
     <div :key="news_view">
@@ -233,4 +233,40 @@ import News from './components/News.vue'
 5. rebuild the app
 ```bash
 npm run build
+```
+
+## Splash page
+
+follow the create new page guide above
+
+in main.js routes, change the product list view to a different path 
+add your splash page to as the / path
+```js
+  //src/main.js
+  //import new component
+  import Splash from './components/Splash.vue'
+
+  //updated routes
+  routes: [
+    {
+        path: '/store',
+        name: 'ProductList',
+        component: ProductList
+    },
+    {
+        path: '/',
+        name: 'Splash',
+        component: Splash
+    },
+```
+
+also you will need up update your menus with the correct path in App.vue
+```js
+    //src/components/App.vue
+    menuitems:[
+      {icon:"home",text:"Home",href:"/"},  
+      {icon:"store",text:"Store",href:"/store"},
+      {icon:"people",text:"About",href:"/about"},
+      {icon:"contact_mail",text:"Contact",href:"/contact"},
+    ],
 ```
