@@ -2,7 +2,7 @@
     <div :key="ad_view">
         <div v-if="authenticated">
             <v-tabs fixed dark>
-                <v-tabs-bar class="grey darken-4">
+                <v-tabs-bar class="seconday">
                     <v-tabs-slider></v-tabs-slider>
                     <v-tabs-item href="#products">products</v-tabs-item>
                     <v-tabs-item href="#orders">orders</v-tabs-item>
