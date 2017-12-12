@@ -1,8 +1,8 @@
 <template>
     <div :key="ad_view">
         <div v-if="authenticated">
-            <v-tabs fixed dark>
-                <v-tabs-bar class="seconday">
+            <v-tabs fixed>
+                <v-tabs-bar class="seconday" dark>
                     <v-tabs-slider></v-tabs-slider>
                     <v-tabs-item href="#products">products</v-tabs-item>
                     <v-tabs-item href="#orders">orders</v-tabs-item>
