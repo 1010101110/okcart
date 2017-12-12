@@ -220,7 +220,17 @@ import News from './components/News.vue'
     },
   ]
 ```
-4. rebuild the app
+4. optional add to menu
+```js
+// src/components/App.vue
+
+//find menuitems array, add news entry
+//can add an icon from material icons https://material.io/icons/
+{icon:"storage",text:"News",href:"/news"},
+
+```
+
+5. rebuild the app
 ```bash
 npm run build
 ```
