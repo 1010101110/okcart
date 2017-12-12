@@ -103,6 +103,9 @@ const store = new Vuex.Store({
         },
         authenticated:(state,getters)=>{
             return state.authenticated
+        },
+        formatPrice:(state,getters)=>{
+            return price => { return state.currency.format(price) }
         }
     },
     mutations: {
