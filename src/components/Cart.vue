@@ -83,9 +83,10 @@
 
 <script>
 import store from './../store.js'
+import {client} from './../../config'
 
 //stripe objects
-var stripe = Stripe('pk_test_GhV0QqLp9vthn8RTrVlfDiF9');
+var stripe = Stripe(client.stripepk);
 var elements = stripe.elements();
 
 //stripe credit card iframe
