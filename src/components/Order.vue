@@ -25,8 +25,8 @@
             <v-flex xs12 sm4>
                 <h6>Summary</h6>
                 <p>
-                    Shipping: {{order.shiptotal}}<br>
-                    Total: {{total}}
+                    Shipping: {{store.getters.formatPrice(order.shiptotal)}}<br>
+                    Total: {{store.getters.formatPrice(order.total)}}
                 </p>
             </v-flex>
             <v-flex xs12>
@@ -37,7 +37,7 @@
                             <v-flex xs8>
                                 <strong>{{item.quantity}}x {{item.name}}</strong>
                                 <div>
-                                    {{item.price/100}}<br>                                    
+                                    {{store.getters.formatPrice(item.price)}}<br>                                    
                                 </div>
                             </v-flex>
                             <v-flex xs4>
@@ -64,9 +64,6 @@ export default {
     computed:{
         order:()=>{
             return store.getters.order;
-        },
-        total:()=>{
-            return store.getters.formatPrice(store.getters.order.total)
         }
     },
     methods:{
