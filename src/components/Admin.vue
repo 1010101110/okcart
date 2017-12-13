@@ -27,7 +27,7 @@
                                 </tr>
                             </template>
                             <template slot="expand" scope="props">
-                                <v-card class="pa-2">
+                                <v-card class="pa-3">
                                     <v-text-field disabled v-model="props.item._id" name="id" label="id"></v-text-field>
                                     <label><input type="checkbox" v-model="props.item.visible">visible?</label><br>
                                     <label>view order: <input type="number" v-model.number="props.item.sort"></label>
@@ -69,7 +69,7 @@
                                 </tr>
                             </template>
                             <template slot="expand" scope="props">
-                                <v-card class="pa-2">
+                                <v-card class="pa-3">
                                     <v-layout row wrap>
                                         <v-flex xs12>
                                             <v-select
