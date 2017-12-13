@@ -81,6 +81,14 @@ npm install -g pm2
 
 ## Config
 
+### stripe account
+* [Login](https://dashboard.stripe.com/) to your stripe account 
+* go to the API menu
+* Standard API keys: get the plublic and secret key
+
+### mail account
+* if using gmail you will need to enable access for [lesssecureapps](https://www.google.com/settings/security/lesssecureapps)
+
 ### config.json
 * store name
 * stripe private(secret) key
