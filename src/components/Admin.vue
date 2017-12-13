@@ -117,7 +117,7 @@
 
 <script>
 import store from './../store.js'
-import _ from 'lodash'
+import cloneDeep from 'lodash/cloneDeep'
 
 export default {
   name: 'Admin',
@@ -137,10 +137,10 @@ export default {
   }},
   computed:{
       products: ()=>{
-          return _.cloneDeep(store.getters.products);
+          return cloneDeep(store.getters.products);
       },
       orders: ()=>{
-          return _.cloneDeep(store.getters.orders);
+          return cloneDeep(store.getters.orders);
       },
       authenticated: ()=>{
           return store.getters.authenticated;
