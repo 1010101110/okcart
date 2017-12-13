@@ -4,6 +4,8 @@ import Vuex from 'vuex'
 Vue.use(Vuex);
 //router object for nav actions
 import {router} from './main.js'
+//config
+import {client} from './../config'
 
 //global store object
 const store = new Vuex.Store({
@@ -13,10 +15,10 @@ const store = new Vuex.Store({
         cart:[],
         order:{},
         //helpers
-        store_name:'mystore',
-        currency: Intl.NumberFormat('en-US', {
+        store_name:client.storeName,
+        currency: Intl.NumberFormat(client.locale, {
             style: 'currency',
-            currency: 'USD',
+            currency: client.currency,
             minimumFractionDigits: 2,
         }),
         loading:false,

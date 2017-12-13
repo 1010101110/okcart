@@ -80,6 +80,7 @@ npm install -g pm2
 ### config.json
 * store name
 * stripe private(secret) key
+* stripe public key
 * local
 * currency
 * Email details see nodemailer documentation
@@ -89,15 +90,6 @@ npm install -g pm2
 * meta tags to whatever you want
 * icon
 * title
-
-### src/store.js
-* store_name 
-
-### src/stylus/main.styl
-* can change any theme colors here
-
-### src/components/cart.vue
-* stripe public key (can search "var stripe")
 
 ## Build the application
 Build compiles the Vue application, aka the web pages. This does not affect the server or asset files (picutes etc).
