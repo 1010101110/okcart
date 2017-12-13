@@ -10,30 +10,42 @@
                 </v-tabs-bar>
                 <v-tabs-items>
                     <v-tabs-content id="products">
-                        <v-layout row wrap>
-                                <v-flex xs12 class="pa-2">
-                                    <v-btn color="primary" @click.native="addProduct()">Add Product</v-btn>
-                                </v-flex>
-                                <v-flex xs12 sm6 md6 lg4 xl3 class="pa-2" v-for="item in products" :key="item._id">
-                                    <div class="pa-2 elevation-5">
-                                        <v-text-field disabled v-model="item._id" name="id" label="id"></v-text-field>
-                                        <label><input type="checkbox" v-model="item.visible">visible?</label><br>
-                                        <label>view order: <input type="number" v-model.number="item.sort"></label>
+                        <v-btn color="primary" @click.native="addProduct()">Add Product</v-btn>
+                        <v-data-table
+                            :headers="productheaders"
+                            :items="products"
+                            item-key="_id"
+                            hide-actions
+                            expand
+                        >
+                            <template slot="items" scope="props">
+                                <tr @click="props.expanded = !props.expanded">
+                                    <td class="text-xs-right">{{props.item._id}}</td>
+                                    <td class="text-xs-right">{{props.item.name}}</td>
+                                    <td class="text-xs-right">{{props.item.sort}}</td>
+                                    <td class="text-xs-right">{{props.item.visible}}</td>
+                                </tr>
+                            </template>
+                            <template slot="expand" scope="props">
+                                <v-card flat>
+                                    <v-text-field disabled v-model="props.item._id" name="id" label="id"></v-text-field>
+                                    <label><input type="checkbox" v-model="props.item.visible">visible?</label><br>
+                                    <label>view order: <input type="number" v-model.number="props.item.sort"></label>
 
-                                        <v-text-field v-model="item.name" name="name" label="name"></v-text-field>
-                                        <v-text-field v-model="item.stock" name="stock" label="stock"></v-text-field>
-                                        <v-text-field v-model="item.price" name="price" label="price"></v-text-field>
-                                        <v-text-field v-model="item.shipping" name="shipping" label="shipping"></v-text-field>
-                                        
-                                        <v-text-field v-if="item.images" :value="item.images.join('\n')" @input="item.images = $event.split('\n')"  multi-line name="image" label="image paths"></v-text-field>
+                                    <v-text-field v-model="props.item.name" name="name" label="name"></v-text-field>
+                                    <v-text-field v-model="props.item.stock" name="stock" label="stock"></v-text-field>
+                                    <v-text-field v-model="props.item.price" name="price" label="price"></v-text-field>
+                                    <v-text-field v-model="props.item.shipping" name="shipping" label="shipping"></v-text-field>
+                                    
+                                    <v-text-field v-if="props.item.images" :value="props.item.images.join('\n')" @input="props.item.images = $event.split('\n')"  multi-line name="image" label="image paths"></v-text-field>
 
-                                        <v-text-field multi-line v-model="item.description" name="description" label="description"></v-text-field>
+                                    <v-text-field multi-line v-model="props.item.description" name="description" label="description"></v-text-field>
 
-                                        <v-btn icon @click.native="updateProduct(item)"><v-icon>save</v-icon></v-btn>
-                                        <v-btn icon @click.native="deleteProduct(item._id)"><v-icon>delete</v-icon></v-btn>
-                                    </div>
-                                </v-flex>
-                        </v-layout>
+                                    <v-btn icon @click.native="updateProduct(props.item)"><v-icon>save</v-icon></v-btn>
+                                    <v-btn icon @click.native="deleteProduct(props.item._id)"><v-icon>delete</v-icon></v-btn>
+                                </v-card>
+                            </template>
+                        </v-data-table>
                     </v-tabs-content>
                     <v-tabs-content id="orders">
                         <v-data-table
@@ -123,6 +135,12 @@ export default {
   name: 'Admin',
   data:()=>{return {
       pass:"",
+      productheaders:[
+          {text:"_id",value:"id"},
+          {text:"Name",value:"name"},
+          {text:"View Order",value:"sort"},
+          {text:"Visibile",value:"visible"},
+      ],
       orderheaders:[
           {text:"id",value:"id"},
           {text:"created",value:"created"},
