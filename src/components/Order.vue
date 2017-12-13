@@ -1,6 +1,6 @@
 <template>
     <div v-if="order.charge" :key="or_view">
-        <h3>Order Details</h3>
+        <h2>Order Details</h2>
         <div id="order">
         <v-layout row wrap>
             <v-flex xs12>
@@ -9,13 +9,13 @@
                 Status: {{order.status}}
             </v-flex>
             <v-flex xs12 sm4>
-                <h6>Payment</h6>
+                <h3>Payment</h3>
                 <p>                        
                     {{order.charge.source.brand}} {{order.charge.source.last4}}
                 </p>
             </v-flex>
             <v-flex xs12 sm4>
-                <h6>Shipping</h6>
+                <h3>Shipping</h3>
                 <p>                        
                     {{order.address.name}}<br>
                     {{order.address.street}} {{order.address.apt}}<br>
@@ -23,14 +23,14 @@
                 </p>
             </v-flex>
             <v-flex xs12 sm4>
-                <h6>Summary</h6>
+                <h3>Summary</h3>
                 <p>
                     Shipping: {{$store.getters.formatPrice(order.shiptotal)}}<br>
                     Total: {{$store.getters.formatPrice(order.total)}}
                 </p>
             </v-flex>
             <v-flex xs12>
-                <h6>Cart</h6>
+                <h3>Cart</h3>
                 <v-card class="ma-3" v-for="item in order.cart" v-bind:item="item" v-bind:key="item._id">
                     <v-container>
                         <v-layout row>
