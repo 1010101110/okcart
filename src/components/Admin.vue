@@ -119,7 +119,7 @@
         </div>
         <div v-else>
             <!-- login -->
-            <v-text-field v-model="pass" @keyup.13="auth()" label="Enter password" type="password"></v-text-field>
+            <v-text-field v-model="pass" @keyup.13="auth()" placeholder="Enter password" type="password"></v-text-field>
             <v-btn color="primary" dark @click.native="auth()" v-if="!loading">Authenticate</v-btn>
             <v-progress-circular indeterminate primary v-bind:size="70" v-else></v-progress-circular>
         </div>
