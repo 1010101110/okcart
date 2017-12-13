@@ -167,9 +167,6 @@ export default {
       }
   },
   methods:{
-      formatPrice(i){
-        return store.getters.currency.format(i/100);
-      },
       auth(){
         store.dispatch('auth',{pass:this.pass});
       },
