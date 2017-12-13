@@ -1,11 +1,12 @@
 {
   "name": "ok-cart",
   "description": "A simple cart based on node express vue stack",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "author": "jonathan hiatt",
-  "private": true,
+  "private": false,
   "scripts": {
-    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
+    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
+    "analyze": "cross-env NODE_ENV=production webpack --profile --json > webpack-stats.json"
   },
   "dependencies": {
     "bcrypt": "*",
