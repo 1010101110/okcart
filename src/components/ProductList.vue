@@ -8,7 +8,7 @@
                     </v-card-title>
                     <v-card-media :src="item.images[0]" height="200px"></v-card-media>
                     <v-card-actions class="mt-0">
-                        <span>{{item.stock > 0 ? formatPrice(item.price) : "out of stock"}}</span>
+                        <span>{{item.stock > 0 ? $store.getters.formatPrice(item.price) : "out of stock"}}</span>
                         <v-spacer></v-spacer>
                         <v-btn color="primary" v-on:click.native="additemtocart(item)" :disabled="item.stock > 0 ? false:true">add to cart</v-btn>
                     </v-card-actions>
@@ -31,9 +31,6 @@ export default {
   methods:{
       additemtocart(item){
         store.commit('additemtocart',item);
-      },
-      formatPrice(i){
-        return store.getters.currency.format(i/100);
       }
   }
 }

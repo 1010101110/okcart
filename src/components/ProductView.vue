@@ -22,9 +22,9 @@
                         <v-spacer></v-spacer>
                         <span class="pa-2">{{item.stock > 0 ? "" : "out of stock"}}</span>
                         <v-spacer></v-spacer>
-                        <span class="pa-2">price: {{formatPrice(item.price)}}</span>
+                        <span class="pa-2">price: {{$store.getters.formatPrice(item.price)}}</span>
                         <v-spacer></v-spacer>
-                        <span class="pa-2" v-if="item.shipping">shipping: {{formatPrice(item.shipping)}}</span>
+                        <span class="pa-2" v-if="item.shipping">shipping: {{$store.getters.formatPrice(item.shipping)}}</span>
                         <v-spacer></v-spacer>
                         <v-btn color="primary" v-on:click.native="additemtocart(item)" :disabled="item.stock > 0 ? false:true">add to cart</v-btn>
                     </v-card-row>
@@ -47,9 +47,6 @@ export default {
     methods:{
       additemtocart(item){
           store.commit('additemtocart',item);
-      },
-      formatPrice(i){
-        return store.getters.currency.format(i/100);
       }
     }
 }
