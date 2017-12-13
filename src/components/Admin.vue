@@ -29,7 +29,7 @@
                             <template slot="expand" scope="props">
                                 <v-card class="pa-3">
                                     <v-text-field disabled v-model="props.item._id" name="id" label="id"></v-text-field>
-                                    <v-checkbox label="Visible" v-model="props.item.visible" light></v-checkbox>
+                                    <v-switch label="Visible" v-model="props.item.visible" light></v-switch>
                                     <v-text-field label="Sort Order" type="number" v-model.number="props.item.sort"></v-text-field>
                                     <v-text-field v-model="props.item.name" name="name" label="name"></v-text-field>
                                     <v-text-field v-model="props.item.stock" name="stock" label="stock"></v-text-field>
