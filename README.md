@@ -1,4 +1,4 @@
-# under development (see Todo.md)
+### ALPHA BUILD
 
 > A tiny webserver + shopping cart for developers looking to setup simple shop pages quickly on virtual private servers without any SAAS fees or bloated CMS. 
 
