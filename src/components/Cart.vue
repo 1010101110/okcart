@@ -147,16 +147,16 @@ export default {
         return store.getters.cartIsEmpty;
     },
     cartSubTotal: ()=>{
-        return store.getters.cartSubTotal;
+        return store.getters.formatPrice(store.getters.cartSubTotal);
     },
     cartloading: ()=>{
         return store.getters.loading;
     },
     total: ()=>{
-        return store.getters.cartTotal;
+        return store.getters.formatPrice(store.getters.cartTotal);
     },
     cartShipping: ()=>{
-        return store.getters.cartShipping;
+        return store.getters.formatPrice(store.getters.cartShipping);
     }
   },
   methods:{

@@ -61,7 +61,7 @@ const store = new Vuex.Store({
                 //have to do multiply/divide 100 because javascript one-cent errors with decimals
                 subtotal += (state.cart[i].quantity * parseInt(state.cart[i].price))
             }
-            return state.currency.format(subtotal/100)
+            return subtotal
         },
         cartShipping:(state,getters)=>{
             //price of items in cart
@@ -70,7 +70,7 @@ const store = new Vuex.Store({
                 //have to do multiply/divide 100 because javascript one-cent errors with decimals
                 shipTotal += (state.cart[i].quantity * parseInt(state.cart[i].shipping))
             }
-            return state.currency.format(shipTotal/100)
+            return shipTotal
         },
         cartTotal:(state,getters)=>{
             var Total = 0
@@ -78,21 +78,10 @@ const store = new Vuex.Store({
                 //have to do multiply/divide 100 because javascript one-cent errors with decimals
                 Total += (state.cart[i].quantity * (parseInt(state.cart[i].shipping)+parseInt(state.cart[i].price/1)))
             }
-            return state.currency.format(Total/100)
-        },
-        checkoutTotal:(state,getters)=>{
-            //do not format this one. we need cents value for stripe checkout
-            var Total = 0
-            for (var i = 0; i < state.cart.length; i++) {
-                //have to do multiply/divide 100 because javascript one-cent errors with decimals
-                Total += (state.cart[i].quantity * (parseInt(state.cart[i].shipping)+parseInt(state.cart[i].price)))
-            }
             return Total
         },
-        orderTotal:(state,getters)=>{
-            return state.currency.format(state.order.charge.amount/100)
-        },
         loading:(state,getters)=>{
+            //starts spinners to indicate something is happening
             return state.loading
         },
         order:(state,getters)=>{
@@ -105,7 +94,8 @@ const store = new Vuex.Store({
             return state.authenticated
         },
         formatPrice:(state,getters)=>{
-            return price => { return state.currency.format(price) }
+            //returns function to format price (this is a little wierd yeah)
+            return price => { return state.currency.format(price/100) }
         }
     },
     mutations: {
@@ -230,7 +220,7 @@ const store = new Vuex.Store({
                 cart:  state.cart,
                 subtotal: getters.cartSubTotal,
                 shiptotal: getters.cartShipping,
-                total: getters.checkoutTotal,
+                total: getters.cartTotal,
                 token: payload.token,
                 email: payload.email,
                 address: payload.address
