@@ -65,22 +65,22 @@ const store = new Vuex.Store({
             }
             return subtotal
         },
-        cartShipping:(state,getters)=>{
-            //price of items in cart
-            var shipTotal = 0
+        cartShipping:(state,getters)=>{            
+            let shipTotal = 0
+            //price of items in cart            
             for (var i = 0; i < state.cart.length; i++) {
                 //have to do multiply/divide 100 because javascript one-cent errors with decimals
-                shipTotal += (state.cart[i].quantity * parseInt(state.cart[i].shipping))
+                shipTotal += (state.cart[i].quantity * parseInt(state.cart[i].shipping))                
             }
-            return shipTotal
+
+            //base order charge 
+            shipTotal += client.ordershipbasecharge
+
+            //if subtotal is less than free shipping limit then charge shipping, otherwise it's free!
+            return getters.cartSubTotal < client.ordershipfreelimit ? shipTotal : 0
         },
         cartTotal:(state,getters)=>{
-            var Total = 0
-            for (var i = 0; i < state.cart.length; i++) {
-                //have to do multiply/divide 100 because javascript one-cent errors with decimals
-                Total += (state.cart[i].quantity * (parseInt(state.cart[i].shipping)+parseInt(state.cart[i].price/1)))
-            }
-            return Total
+            return getters.cartShipping + getters.cartSubTotal
         },
         loading:(state,getters)=>{
             //starts spinners to indicate something is happening
