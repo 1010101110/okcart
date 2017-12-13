@@ -260,11 +260,18 @@ server.post('/api/checkout', function (request, response) {
                     //html email
                     let emailhtml = orderemail
 
+                    //formats prices in emails
+                    let currency = Intl.NumberFormat('en-US', {
+                        style: config.locale,
+                        currency: config.currency,
+                        minimumFractionDigits: 2,
+                    })
+
                     //order
                     emailhtml = emailhtml.replace('%%storename%%',config.storeName)
                     emailhtml = emailhtml.replace('%%storename%%',config.storeName)
                     emailhtml = emailhtml.replace('%%date%%', new Date(newOrder.charge.created*1000).toDateString())
-                    emailhtml = emailhtml.replace('%%ordertotal%%',newOrder.total/100)
+                    emailhtml = emailhtml.replace('%%ordertotal%%',currency.format(newOrder.total/100))
 
                     //order items
                     let orderitems = ''
@@ -272,7 +279,7 @@ server.post('/api/checkout', function (request, response) {
                         let oitem = orderemailitem                    
                         oitem = oitem.replace('%%item.name%%',element.name)
                         oitem = oitem.replace('%%item.qty%%',element.quantity)
-                        oitem = oitem.replace('%%item.price%%',element.price/100)
+                        oitem = oitem.replace('%%item.price%%',currency.format(element.price/100))
                         oitem = oitem.replace('%%item.href%%', request.protocol + '://' + request.get('host') + '/product/'+element.name)
                         orderitems += oitem
                     })
