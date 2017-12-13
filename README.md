@@ -23,6 +23,10 @@ pm2 stop server.js
 
 # Install
 
+## Dependencies 
+* external mail account [list](https://nodemailer.com/smtp/well-known/)
+* Stripe account, Api keys
+
 ## Server setup
 
 create droplet (or any other vps)
@@ -31,7 +35,7 @@ create droplet (or any other vps)
 
 login via putty / ssh
 * should get an email with ip and root password
-* set a new password
+* login to root
 
 update
 ```bash
@@ -125,7 +129,6 @@ node server.js
 
 if everything is good lets go ahead and configure the server to run forever.
 ```bash
-npm install pm2 -g
 pm2 start server.js
 pm2 startup
 pm2 save
@@ -143,12 +146,8 @@ shtudown -r now
 * login to the backend and get your products setup
 * https://yourdomain.com/admin
 
-## Stripe
-create account
 
-link your checking / business checking account
-
-get keys for okcart config in the API menu
+# Customization
 
 ## Theme
 You can edit theme colors via vuetify.
