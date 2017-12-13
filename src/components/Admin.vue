@@ -20,14 +20,14 @@
                         >
                             <template slot="items" scope="props">
                                 <tr @click="props.expanded = !props.expanded">
-                                    <td class="text-xs-right">{{props.item._id}}</td>
-                                    <td class="text-xs-right">{{props.item.name}}</td>
                                     <td class="text-xs-right">{{props.item.sort}}</td>
+                                    <td class="text-xs-right">{{props.item._id}}</td>
+                                    <td class="text-xs-right">{{props.item.name}}</td>                                    
                                     <td class="text-xs-right">{{props.item.visible}}</td>
                                 </tr>
                             </template>
                             <template slot="expand" scope="props">
-                                <v-card flat class="pa-2" color="grey lighten-2">
+                                <v-card class="pa-2">
                                     <v-text-field disabled v-model="props.item._id" name="id" label="id"></v-text-field>
                                     <label><input type="checkbox" v-model="props.item.visible">visible?</label><br>
                                     <label>view order: <input type="number" v-model.number="props.item.sort"></label>
@@ -57,8 +57,8 @@
                         >
                             <template slot="items" scope="props">
                                 <tr @click="props.expanded = !props.expanded">
-                                    <td class="text-xs-right">{{props.item._id}}</td>
                                     <td class="text-xs-right">{{new Date(props.item.charge.created*1000).toLocaleString()}}</td>
+                                    <td class="text-xs-right">{{props.item._id}}</td>                                    
                                     <td class="text-xs-right">{{props.item.email}}</td>
                                     <td class="text-xs-right"> 
                                         {{props.item.address.name}}<br>
@@ -69,7 +69,7 @@
                                 </tr>
                             </template>
                             <template slot="expand" scope="props">
-                                <v-card flat class="pa-2" color="grey lighten-2">
+                                <v-card class="pa-2">
                                     <v-layout row wrap>
                                         <v-flex xs12>
                                             <v-select
@@ -136,16 +136,16 @@ export default {
   data:()=>{return {
       pass:"",
       productheaders:[
-          {text:"_id",value:"id"},
-          {text:"Name",value:"name"},
           {text:"View Order",value:"sort"},
+          {text:"_id",value:"id"},
+          {text:"Name",value:"name"},          
           {text:"Visibile",value:"visible"},
       ],
       orderheaders:[
-          {text:"id",value:"id"},
           {text:"created",value:"created"},
+          {text:"id",value:"id"},          
           {text:"email",value:"email"},
-          {text:"address",value:"address"}
+          {text:"address",value:"address"},
       ],
       orderstatus:["created","shipped","refunded"],
       drag:false,
