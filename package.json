@@ -3,7 +3,7 @@
   "description": "A simple cart based on node express vue stack",
   "version": "0.1.0",
   "author": "jonathan hiatt",
-  "private": false,
+  "private": true,
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
     "analyze": "cross-env NODE_ENV=production webpack --profile --json > webpack-stats.json"
@@ -17,7 +17,6 @@
     "nodemailer": "*",
     "stripe": "*",
     "vue": "*",
-    "vue-material": "*",
     "vue-resource": "*",
     "vue-router": "*",
     "vuetify": "*",
@@ -27,7 +26,8 @@
   "devDependencies": {
     "babel-core": "^6.0.0",
     "babel-loader": "^6.0.0",
-    "babel-preset-latest": "^6.0.0",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-stage-2": "^6.24.1",
     "cross-env": "^3.0.0",
     "css-loader": "^0.25.0",
     "file-loader": "^0.9.0",
