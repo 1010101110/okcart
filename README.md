@@ -112,6 +112,9 @@ this is your public config file.
 * icon
 * title
 
+### src/components/About.vue
+Add HTML to your about page. You can use vuetify to make it pretty.
+
 ## Build the application
 Build compiles the Vue application, aka the web pages. This does not affect the server or asset files (picutes etc).
 
