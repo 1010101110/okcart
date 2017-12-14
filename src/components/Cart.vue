@@ -83,7 +83,7 @@
 
 <script>
 import store from './../store.js'
-import {client} from './../../config'
+import client from './../../config-c'
 
 //stripe objects
 var stripe = Stripe(client.stripepk);
