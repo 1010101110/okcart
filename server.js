@@ -1,7 +1,8 @@
 'use strict'
 
 //config
-import * as config from './config'
+var config_s = require('./config-s')
+var config_c = require('./config-c')
 
 // =========Node packages=========
 
@@ -15,10 +16,10 @@ var bcrypt = require('bcrypt');
 //email
 const nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
-    service: config.server.storeEmailService,
+    service: config_s.storeEmailService,
     auth: {
-        user: config.server.storeEmailUser,
-        pass: config.server.storeEmailPass
+        user: config_s.storeEmailUser,
+        pass: config_s.storeEmailPass
     }
 });
 var orderemail = fs.readFileSync( path.join(__dirname, '/email/orderemail.html') ,{encoding:"utf8"})
@@ -57,7 +58,7 @@ server.use(bodyParser.urlencoded({ extended: false }));
 server.use(bodyParser.json());
 
 //stripe for payment processing
-var stripe = require('stripe')(config.server.stripesk);
+var stripe = require('stripe')(config_s.stripesk);
 
 // =========Server Routes=========
 
@@ -99,8 +100,8 @@ server.post('/api/contact',function(request,response){
     if(checkpass(request.body.pass)){
         let emailOptions ={
             replyTo: request.body.email.email,
-            to: config.server.storeEmailUser,
-            subject: config.client.storeName + ' Contact',
+            to: config_s.storeEmailUser,
+            subject: config_c.storeName + ' Contact',
             text:request.body.email.body
         }
 
@@ -212,8 +213,8 @@ server.post('/api/checkout', function (request, response) {
     // Create+Send Stripe Charge (see stripe api)
     var charge = stripe.charges.create({
         amount: request.body.total,
-        currency: config.client.currency,
-        description: request.body.email + " order from " + config.client.storeName,
+        currency: config_c.currency,
+        description: request.body.email + " order from " + config_c.storeName,
         source: request.body.token.id
     }, function(err, charge) {
         if(err){
@@ -263,14 +264,14 @@ server.post('/api/checkout', function (request, response) {
 
                     //formats prices in emails
                     let currency = Intl.NumberFormat('en-US', {
-                        style: config.client.locale,
-                        currency: config.client.currency,
+                        style: config_c.locale,
+                        currency: config_c.currency,
                         minimumFractionDigits: 2,
                     })
 
                     //order
-                    emailhtml = emailhtml.replace('%%storename%%',config.client.storeName)
-                    emailhtml = emailhtml.replace('%%storename%%',config.client.storeName)
+                    emailhtml = emailhtml.replace('%%storename%%',config_c.storeName)
+                    emailhtml = emailhtml.replace('%%storename%%',config_c.storeName)
                     emailhtml = emailhtml.replace('%%date%%', new Date(newOrder.charge.created*1000).toDateString())
                     emailhtml = emailhtml.replace('%%ordertotal%%',currency.format(newOrder.total/100))
 
@@ -288,9 +289,9 @@ server.post('/api/checkout', function (request, response) {
 
                     //send email confirmation
                     let emailOptions ={
-                        from: config.server.storeEmailUser,
+                        from: config_s.storeEmailUser,
                         to: order.email,
-                        subject: config.client.storeName + ' order confirmation',
+                        subject: config_c.storeName + ' order confirmation',
                         html: emailhtml,
                         attachments: [
                             {
@@ -320,16 +321,16 @@ server.post('/api/updateOrder',function(request,response){
             if(doc.status === "created" && request.body.order.status === "shipped"){
                 //send email
                 let emailhtml = shippedemail
-                emailhtml = emailhtml.replace('%%storename%%',config.client.storeName)
-                emailhtml = emailhtml.replace('%%storename%%',config.client.storeName)
+                emailhtml = emailhtml.replace('%%storename%%',config_c.storeName)
+                emailhtml = emailhtml.replace('%%storename%%',config_c.storeName)
                 emailhtml = emailhtml.replace('%%date%%', new Date().toDateString())
                 emailhtml = emailhtml.replace('%%shippingco%%',request.body.order.trackingco)
                 emailhtml = emailhtml.replace('%%tracking%%',request.body.order.trackingnum)
                 
                 let emailOptions ={
-                    from: config.server.storeEmailUser,
+                    from: config_s.storeEmailUser,
                     to: request.body.order.email,
-                    subject: config.client.storeName + ' order shipped',
+                    subject: config_c.storeName + ' order shipped',
                     html: emailhtml,
                     attachments: [
                         {
@@ -355,15 +356,15 @@ server.post('/api/updateOrder',function(request,response){
                     if(err) console.log(err)
                     //send email
                     let emailhtml = refundemail
-                    emailhtml = emailhtml.replace('%%storename%%',config.client.storeName)
+                    emailhtml = emailhtml.replace('%%storename%%',config_c.storeName)
                     emailhtml = emailhtml.replace('%%date%%', new Date().toDateString())
                     emailhtml = emailhtml.replace('%%amount%%',refund.amount/100)
                     emailhtml = emailhtml.replace('%%ordernum%%',request.body.order._id)
 
                     let emailOptions ={
-                        from: config.server.storeEmailUser,
+                        from: config_s.storeEmailUser,
                         to: request.body.order.email,
-                        subject: config.client.storeName + ' order refund',
+                        subject: config_c.storeName + ' order refund',
                         html: emailhtml,
                         attachments: [
                             {
@@ -425,7 +426,7 @@ server.get('/api/auth', function (request, response) {
 function checkpass(pass){
     //use bcrypt.hash to generate your own password and store it in config
     //default password: "lol"
-    return bcrypt.compareSync(pass,config.server.adminPassHash);
+    return bcrypt.compareSync(pass,config_s.adminPassHash);
 }
 
 // =========Vue App Route=========

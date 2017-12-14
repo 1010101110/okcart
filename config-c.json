@@ -1,0 +1,12 @@
+{
+    "stripepk":"pk_test_GhV0QqLp9vthn8RTrVlfDiF9",
+
+    "storeName":"MyStore",
+
+    "locale":"en-US",
+    "currency":"usd",
+
+    "ordershipbasecharge": 100,
+    
+    "ordershipfreelimit": 5000
+}

@@ -5,7 +5,7 @@ Vue.use(Vuex);
 //router object for nav actions
 import {router} from './main.js'
 //config
-import {client} from './../config'
+import client from './../config-c'
 
 //global store object
 const store = new Vuex.Store({

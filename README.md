@@ -1,3 +1,6 @@
+#OKCART
+it's not great, it's not bad, it's just ok =]
+
 ### ALPHA BUILD
 
 > A tiny webserver + shopping cart for developers looking to setup simple shop pages quickly on virtual private servers without any SAAS fees or bloated CMS. 
@@ -89,14 +92,20 @@ npm install -g pm2
 ### mail account
 * if using gmail you will need to enable access for [lesssecureapps](https://www.google.com/settings/security/lesssecureapps)
 
-### config.json
-* store name
+### config-s.json
+this is your secret server only config file. only put sensitive info  here.
 * stripe private(secret) key
+* Email details see nodemailer documentation
+* admin password - change this to something else!! - use: https://bcrypt-generator.com/
+
+### config-c.json
+this is your public config file.
+* store name
 * stripe public key
 * local
 * currency
-* Email details see nodemailer documentation
-* admin password - change this to something else!! - use: https://bcrypt-generator.com/
+* order shipping base charge - if you want every order to have a shipping charge no matter items set this to x amount, otherwise 0
+* order shipping free limit - if you want orders to ship free after x amount use this, otherwise 0
 
 ### index.html
 * meta tags to whatever you want
