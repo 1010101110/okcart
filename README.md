@@ -1,5 +1,5 @@
-#OKCART
-it's not great, it's not bad, it's just ok =]
+# OKCART
+it's not great, it's not bad, it's just ok 😊
 
 ### ALPHA BUILD
 

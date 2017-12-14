@@ -1,8 +1,8 @@
 <template>
   <v-app>
     <v-navigation-drawer
-      persistent
       clipped
+      fixed
       disable-route-watcher
       v-model="drawer"
       app
