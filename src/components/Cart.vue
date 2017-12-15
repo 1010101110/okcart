@@ -19,7 +19,7 @@
                                 <v-flex xs8>
                                     <strong>{{item.name}}</strong>
                                     <div>
-                                        {{item.price/100}}<br>
+                                        {{$store.getters.formatPrice(item.price)}}<br>
                                         <v-btn icon @click.native="addcartitem(item)"><v-icon>add</v-icon></v-btn>
                                         {{item.quantity}}
                                         <v-btn icon @click.native="removecartitem(item)"><v-icon>remove</v-icon></v-btn>
@@ -207,6 +207,7 @@ export default {
 .ccinput {
     width:100%;
     min-width: 300px;
+    max-width: 500px;
     min-height: 48px;
     padding-top: 16px;
     margin: 4px 0 24px;
