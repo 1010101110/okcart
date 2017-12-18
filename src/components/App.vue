@@ -43,14 +43,16 @@ import store from './../store.js'
 
 export default {
   name: 'app',
-  data: ()=>({
-    menuitems:[
-      {icon:"store",text:"Store",href:"/"},
-      {icon:"people",text:"About",href:"/about"},
-      {icon:"contact_mail",text:"Contact",href:"/contact"},
-    ],
-    cursor:"auto"
-  }),
+  data: ()=>{
+    return {
+      menuitems:[
+        {icon:"store",text:"Store",href:"/"},
+        {icon:"people",text:"About",href:"/about"},
+        {icon:"contact_mail",text:"Contact",href:"/contact"},
+      ],
+      cursor:"auto"
+    }
+  },
   created () {
       //init the products array
       store.dispatch('fetchProducts')
