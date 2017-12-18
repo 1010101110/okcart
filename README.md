@@ -25,6 +25,7 @@ pm2 stop server.js
 ```
 
 # Install
+realtime video of install (20 minutes) https://youtu.be/1dxgztOZMGc
 
 ## Dependencies 
 * external mail account [list](https://nodemailer.com/smtp/well-known/)
