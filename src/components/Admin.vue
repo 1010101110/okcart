@@ -57,7 +57,7 @@
                             <template slot="items" scope="props">
                                 <tr @click="props.expanded = !props.expanded">
                                     <td class="text-xs-right">{{new Date(props.item.charge.created*1000).toLocaleString()}}</td>
-                                    <td class="text-xs-right">{{props.item._id}}</td>                                    
+                                    <td class="text-xs-right">{{props.item.status}}</td>
                                     <td class="text-xs-right">{{props.item.email}}</td>
                                     <td class="text-xs-right"> 
                                         {{props.item.address.name}}<br>
@@ -71,10 +71,14 @@
                                 <v-card class="pa-3">
                                     <v-layout row wrap>
                                         <v-flex xs12>
+                                            <v-btn class="primary" dark v-on:click.native="$router.push('/order/' + props.item._id)">Order details</v-btn>
+                                        </v-flex>
+                                        <v-flex xs12>
                                             <v-select
                                                     :items="orderstatus"
                                                     v-model="props.item.status"
                                                     label="status"
+                                                    class="ma-2"
                                             ></v-select>
                                         </v-flex>
                                         <v-flex xs12 sm6>
@@ -82,6 +86,7 @@
                                                 v-model="props.item.trackingnum"
                                                 name="trackingnum"
                                                 label="tracking number"
+                                                class="ma-2"
                                             ></v-text-field>
                                         </v-flex>
                                         <v-flex xs12 sm6>
@@ -89,6 +94,7 @@
                                                 v-model="props.item.trackingco"
                                                 name="trackingco"
                                                 label="tracking company"
+                                                class="ma-2"
                                             ></v-text-field>
                                         </v-flex>
                                         <v-flex xs12>
@@ -141,8 +147,8 @@ export default {
           {text:"Visibile",value:"visible"},
       ],
       orderheaders:[
-          {text:"created",value:"created"},
-          {text:"id",value:"id"},          
+          {text:"created",value:"charge.created"},
+          {text:"status",value:"status"},          
           {text:"email",value:"email"},
           {text:"address",value:"address"},
       ],
