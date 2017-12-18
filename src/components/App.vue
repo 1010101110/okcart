@@ -28,15 +28,13 @@
         <v-icon>shopping_cart</v-icon>{{cartQuantity}}
       </v-btn>
     </v-toolbar>
-    <main>
-      <v-content>
-        <v-container fluid>
-          <transition name="fade" mode="out-in">
-            <router-view></router-view>
-          </transition>
-        </v-container>
-      </v-content>
-    </main>
+    <v-content>
+      <v-container fluid>
+        <transition name="fade" mode="out-in">
+          <router-view></router-view>
+        </transition>
+      </v-container>
+    </v-content>
   </v-app>
 </template>
 
