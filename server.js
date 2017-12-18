@@ -271,23 +271,10 @@ server.post('/api/checkout', function (request, response) {
 
                     //order
                     emailhtml = emailhtml.replace('%%storename%%',config_c.storeName)
-                    emailhtml = emailhtml.replace('%%storename%%',config_c.storeName)
-                    emailhtml = emailhtml.replace('%%date%%', new Date(newOrder.charge.created*1000).toDateString())
-                    emailhtml = emailhtml.replace('%%ordertotal%%',currency.format(newOrder.total/100))
+                    emailhtml = emailhtml.replace('%%date%%', new Date(newOrder.charge.created*1000).toLocaleString())
+                    emailhtml = emailhtml.replace('%%orderlink%%','https://' + request.get('host') + '/order/' + newOrder._id)
 
-                    //order items
-                    let orderitems = ''
-                    newOrder.cart.forEach(function(element) {
-                        let oitem = orderemailitem                    
-                        oitem = oitem.replace('%%item.name%%',element.name)
-                        oitem = oitem.replace('%%item.qty%%',element.quantity)
-                        oitem = oitem.replace('%%item.price%%',currency.format(element.price/100))
-                        oitem = oitem.replace('%%item.href%%', request.protocol + '://' + request.get('host') + '/product/'+element.name)
-                        orderitems += oitem
-                    })
-                    emailhtml = emailhtml.replace('%%orderitems%%',orderitems)
-
-                    //send email confirmation
+                    //send email confirmation to user
                     let emailOptions ={
                         from: config_s.storeEmailUser,
                         to: order.email,
@@ -303,6 +290,15 @@ server.post('/api/checkout', function (request, response) {
                     }
 
                     transporter.sendMail(emailOptions,(err,info)=>{
+                        if(err) console.log(err)
+                    })
+
+                    //send mail to store owner that new order created for them to process
+                    let semailoptions = emailOptions
+                    semailoptions.from = config_s.storeEmailUser
+                    semailoptions.t0 = config_s.storeEmailUser
+                    semailoptions.subject = 'New ' + config_c.storeName + ' order'
+                    transporter.sendMail(semailoptions,(err,info)=>{
                         if(err) console.log(err)
                     })
 
