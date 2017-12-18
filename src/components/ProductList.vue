@@ -15,6 +15,9 @@
                 </v-card>
             </v-flex>
         </v-layout>
+        <v-snackbar top color="accent" timeout="2000" v-model="addsnack">
+            Added to <v-icon>shopping_cart</v-icon>
+        </v-snackbar>
     </div>
 </template>
 
@@ -23,6 +26,11 @@ import store from './../store.js'
 
 export default {
   name: 'ProductList',
+    data:()=>{
+        return {
+            addsnack:false
+        }
+    },
   computed:{
       products: ()=>{
         return store.getters.products.filter((p)=>{return p.visible === true});
