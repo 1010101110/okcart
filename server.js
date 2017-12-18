@@ -320,8 +320,8 @@ server.post('/api/updateOrder',function(request,response){
                 emailhtml = emailhtml.replace('%%storename%%',config_c.storeName)
                 emailhtml = emailhtml.replace('%%storename%%',config_c.storeName)
                 emailhtml = emailhtml.replace('%%date%%', new Date().toDateString())
-                emailhtml = emailhtml.replace('%%shippingco%%',request.body.order.trackingco)
-                emailhtml = emailhtml.replace('%%tracking%%',request.body.order.trackingnum)
+                emailhtml = emailhtml.replace('%%shippingco%%',request.body.order.trackingco ? request.body.order.trackingco : "")
+                emailhtml = emailhtml.replace('%%tracking%%',request.body.order.trackingnum ? request.body.order.trackingnum : "")
                 
                 let emailOptions ={
                     from: config_s.storeEmailUser,
