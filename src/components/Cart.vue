@@ -82,37 +82,15 @@
 </template>
 
 <script>
-import store from './../store.js'
 import client from './../../config-c'
-
-//stripe objects
-var stripe = Stripe(client.stripepk);
-var elements = stripe.elements();
-
-//stripe credit card iframe
-var card = elements.create('card',{
-    hidePostalCode: true,
-    style:{
-        base:{
-            fontSize: '16px'
-        }
-    }
-});
-
-//show stripe errors
-card.on('change', (event)=>{
-    var errorElement = document.querySelector('#card-errors');
-    if(event.error){
-        errorElement.textContent = event.error.message;
-    }else{
-        errorElement.textContent = "";
-    }
-});
 
 export default {
   name: 'cart',
-  data: function(){ 
+  data: () => { 
         return {
+            stripe:null,
+            elements:null,
+            card:null,
             step:1,
             email:"",
             name:"",
@@ -132,54 +110,79 @@ export default {
             errors:[]
         }
     },
-  mounted:()=>{    
-    if(!store.getters.cartIsEmpty){
+  mounted(){    
+
+    //init stripe
+    this.stripe = Stripe(client.stripepk);
+    this.elements = this.stripe.elements();
+
+    //stripe credit card iframe
+    this.card = this.elements.create('card',{
+        hidePostalCode: true,
+        style:{
+            base:{
+                fontSize: '16px'
+            }
+        }
+    });
+
+    //show stripe errors
+    this.card.on('change', (event)=>{
+        var errorElement = document.querySelector('#card-errors');
+        if(event.error){
+            errorElement.textContent = event.error.message;
+        }else{
+            errorElement.textContent = "";
+        }
+    });
+
+    if(!this.$store.getters.cartIsEmpty){
         // mount stripe iframe into the DOM
-        card.mount('#card-element');
+        this.card.mount('#card-element');
         //clear any old errors
         document.querySelector('#card-errors').textContent = "";
     }
   },
   computed:{
-    cart: ()=>{
-        return store.getters.cart;
+    cart(){
+        return this.$store.getters.cart;
     },
-    cartIsEmpty: ()=>{
-        return store.getters.cartIsEmpty;
+    cartIsEmpty(){
+        return this.$store.getters.cartIsEmpty;
     },
-    cartSubTotal: ()=>{
-        return store.getters.formatPrice(store.getters.cartSubTotal);
+    cartSubTotal(){
+        return this.$store.getters.formatPrice(this.$store.getters.cartSubTotal);
     },
-    cartloading: ()=>{
-        return store.getters.loading;
+    cartloading(){
+        return this.$store.getters.loading;
     },
-    total: ()=>{
-        return store.getters.formatPrice(store.getters.cartTotal);
+    total(){
+        return this.$store.getters.formatPrice(this.$store.getters.cartTotal);
     },
-    cartShipping: ()=>{
-        return store.getters.formatPrice(store.getters.cartShipping);
+    cartShipping(){
+        return this.$store.getters.formatPrice(this.$store.getters.cartShipping);
     }
   },
   methods:{
     addcartitem(item){
-        store.commit('additemtocart',item);
+        this.$store.commit('additemtocart',item);
     },
     removecartitem(item){
-        store.commit("removeitemfromcart",item);
+        this.$store.commit("removeitemfromcart",item);
     },
     deletecartitem(item){
-        store.commit("deleteitemfromcart",item);
+        this.$store.commit("deleteitemfromcart",item);
     },
     checkout(){
         this.errors = []
 
         if(this.$refs.form.validate()){
-            stripe.createToken(card).then((result)=>{
+            this.stripe.createToken(this.card).then((result)=>{
                 if(result.error){
                     document.querySelector('#card-errors').textContent = result.error.message;
                 }else{                    
                     //ok looks good, lets send to the server to create the charge
-                    store.dispatch('checkout',{
+                    this.$store.dispatch('checkout',{
                         token:result.token,
                         email:this.email,
                         address:{
@@ -190,8 +193,9 @@ export default {
                             state:this.state,
                             zip:this.zip,
                             country:this.country
-                        }
-                    });
+                        },
+                        router:this.$router
+                    })
                 }
             }) 
         }else{
@@ -206,6 +210,7 @@ export default {
 <style scoped>
 .ccinput {
     width:100%;
+    max-width:500px;
     min-width: 300px;
     max-width: 500px;
     min-height: 48px;

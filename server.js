@@ -36,8 +36,8 @@ var http = require('http');
 //https server
 var https = require('https');
 //you should get your certs from lets encrypt / certbot once you have your domain setup
-var privateKey = fs.readFileSync(path.join(__dirname, '/cert/privkey.pem'), 'utf8');
-var certificate = fs.readFileSync(path.join(__dirname, '/cert/fullchain.pem'), 'utf8');
+var privateKey = fs.readFileSync('/etc/letsencrypt/live/mystore.com/privkey.pem', 'utf8');
+var certificate = fs.readFileSync('/etc/letsencrypt/live/mystore.com/fullchain.pem', 'utf8');
 var credentials = { key: privateKey, cert: certificate };
 
 // Create an express server
@@ -97,7 +97,6 @@ server.post('/api/upload',function(request,response){
 
 //contact email 
 server.post('/api/contact',function(request,response){        
-    if(checkpass(request.body.pass)){
         let emailOptions ={
             replyTo: request.body.email.email,
             to: config_s.storeEmailUser,
@@ -109,10 +108,6 @@ server.post('/api/contact',function(request,response){
             if(err) console.log(err)
             response.end()
         })
-    }else{
-        console.log('failed auth')
-        response.end()
-    }
 })
 
 /////////////////////////PRODUCTS///////////////////////////////
@@ -262,13 +257,6 @@ server.post('/api/checkout', function (request, response) {
                     //html email
                     let emailhtml = orderemail
 
-                    //formats prices in emails
-                    let currency = Intl.NumberFormat('en-US', {
-                        style: config_c.locale,
-                        currency: config_c.currency,
-                        minimumFractionDigits: 2,
-                    })
-
                     //order
                     emailhtml = emailhtml.replace('%%storename%%',config_c.storeName)
                     emailhtml = emailhtml.replace('%%date%%', new Date(newOrder.charge.created*1000).toLocaleString())
@@ -296,7 +284,7 @@ server.post('/api/checkout', function (request, response) {
                     //send mail to store owner that new order created for them to process
                     let semailoptions = emailOptions
                     semailoptions.from = config_s.storeEmailUser
-                    semailoptions.t0 = config_s.storeEmailUser
+                    semailoptions.to = config_s.storeEmailUser
                     semailoptions.subject = 'New ' + config_c.storeName + ' order'
                     transporter.sendMail(semailoptions,(err,info)=>{
                         if(err) console.log(err)
@@ -313,6 +301,13 @@ server.post('/api/updateOrder',function(request,response){
     if(checkpass(request.body.pass)){
         //check for status change    
         orders.findOne({_id:request.body.order._id},(err,doc)=>{
+            //formats prices in emails
+            let currency = Intl.NumberFormat(config_c.locale, {
+                style: "currency",
+                currency: config_c.currency,
+                minimumFractionDigits: 2,
+            })
+
             //order is shipped!
             if(doc.status === "created" && request.body.order.status === "shipped"){
                 //send email
@@ -349,31 +344,34 @@ server.post('/api/updateOrder',function(request,response){
                 stripe.refunds.create({
                     charge: request.body.order.charge.id
                 },(err,refund)=>{
-                    if(err) console.log(err)
-                    //send email
-                    let emailhtml = refundemail
-                    emailhtml = emailhtml.replace('%%storename%%',config_c.storeName)
-                    emailhtml = emailhtml.replace('%%date%%', new Date().toDateString())
-                    emailhtml = emailhtml.replace('%%amount%%',refund.amount/100)
-                    emailhtml = emailhtml.replace('%%ordernum%%',request.body.order._id)
+                    if(err){
+                        console.log(err)
+                    }else{
+                        //send email
+                        let emailhtml = refundemail
+                        emailhtml = emailhtml.replace('%%storename%%',config_c.storeName)
+                        emailhtml = emailhtml.replace('%%date%%', new Date().toDateString())
+                        emailhtml = emailhtml.replace('%%amount%%',currency.format(refund.amount/100))
+                        emailhtml = emailhtml.replace('%%orderlink%%','https://' + request.get('host') + '/order/' + request.body.order._id)
 
-                    let emailOptions ={
-                        from: config_s.storeEmailUser,
-                        to: request.body.order.email,
-                        subject: config_c.storeName + ' order refund',
-                        html: emailhtml,
-                        attachments: [
-                            {
-                                filename: 'refund.gif',
-                                path: __dirname + '/email/refund.gif',
-                                cid: 'refund@okok.com'
-                            }
-                        ]
+                        let emailOptions ={
+                            from: config_s.storeEmailUser,
+                            to: request.body.order.email,
+                            subject: config_c.storeName + ' order refund',
+                            html: emailhtml,
+                            attachments: [
+                                {
+                                    filename: 'refund.gif',
+                                    path: __dirname + '/email/refund.gif',
+                                    cid: 'refund@okok.com'
+                                }
+                            ]
+                        }
+            
+                        transporter.sendMail(emailOptions,(err,info)=>{
+                            if(err) console.log(err)
+                        })                
                     }
-        
-                    transporter.sendMail(emailOptions,(err,info)=>{
-                        if(err) console.log(err)
-                    })                
                 })
             }
         })
@@ -427,9 +425,38 @@ function checkpass(pass){
 
 // =========Vue App Route=========
 //this lets vue router handle all other routes on the client (only above routes go to the server)
-server.get('*', function (request, response) {
-    response.sendFile(path.join(__dirname, '/index.html'));
-});
+const { createBundleRenderer } = require('vue-server-renderer')
+
+const template = fs.readFileSync( path.join(__dirname,'index.html') , 'utf-8')
+const bundle = require('./dist/vue-ssr-server-bundle.json')
+const clientManifest = require('./dist/vue-ssr-client-manifest.json')
+
+const renderer = createBundleRenderer(bundle, {
+  template, 
+  clientManifest 
+})
+
+// inside a server handler...
+server.get('*', (req, res) => {
+    const context = { 
+      title: config_c.storeName  ,
+      url: req.url 
+    }
+  // No need to pass an app here because it is auto-created by
+  // executing the bundle. Now our server is decoupled from our Vue app!
+  renderer.renderToString(context, (err, html) => {
+    if (err) {
+        console.log(err)
+        if (err.code === 404) {
+          res.status(404).end('Page not found')
+        } else {
+          res.status(500).end('Internal Server Error')
+        }
+    } else {
+      res.end(html)
+    }
+  })
+})
 
 //=========HTTP / HTTPS server=========
 http.createServer(server).listen(80, function (err) {
