@@ -1,12 +1,15 @@
 # TODO
 
-email for admin when an order is created
-
 admin order view
-    column sort by date not working
-    column sort by status?
-    link to order? show order items / total
+    
     export orders?
+    add print button directly to admin view?
+
+progress
+    
+    add a spinner with animation that drops from top?
+    when dispatching / completeing any remote action show toast to user
+
 
 # low
 
@@ -17,7 +20,9 @@ product
 shipping
 
     add state, country dropdowns?
-   
-toasts
-    
-    when dispatching / completeing an action show toast to user
+    integrate with shipping provider?   
+
+payment methods
+
+    add other payment methods? paypal, amazon, google/apple wallet
+    add crypto payments?
