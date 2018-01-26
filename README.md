@@ -1,10 +1,7 @@
 # OKCART
-it's not great, it's not bad, it's just ok 😊
+A tiny webserver + shopping cart for developers looking to setup simple shop pages quickly on virtual private servers without any SAAS fees or bloated CMS. 
 
-### ALPHA BUILD
-
-> A tiny webserver + shopping cart for developers looking to setup simple shop pages quickly on virtual private servers without any SAAS fees or bloated CMS. 
-
+### Tech
     Webserver = node + express
     Database = nedb
     Front end = Vue + Vuex + Vuetify
@@ -15,7 +12,6 @@ it's not great, it's not bad, it's just ok 😊
 ### Commands
 
 ``` bash
-
 # build with webpack
 npm run build
 
@@ -24,22 +20,39 @@ pm2 start server.js
 pm2 stop server.js
 ```
 
-# Install
-realtime video of install (20 minutes) 
+# Table of Contents
 
-## Dependencies 
+- [Install](#install)
+  * [Dependencies](#dependencies)
+  * [Server setup](#server-setup)
+  * [Get okcart](#get-okcart)
+  * [Config](#config)
+  * [Build the application](#build-the-application)
+  * [Setup https](#setup-https)
+  * [Start the server](#start-the-server)
+  * [Done installing!!](#done-installing--)
+- [Customization](#customization)
+  * [Theme](#theme)
+  * [Adding custom pages](#adding-custom-pages)
+  * [Splash page](#splash-page)
+
+
+# Install
+Realtime video of install - TODO
+
+Dependencies 
 * external mail account [list](https://nodemailer.com/smtp/well-known/)
 * Stripe account, Api keys
 
 ## Server setup
 
-create droplet (or any other vps)
+create [VPS](https://www.digitalocean.com/products/droplets/)
 * ubuntu (tested on 14 and 16)
-* cheapest is fine
+* cheapest is fine (1gb ram)
 
 login via putty / ssh
 * should get an email with ip and root password
-* login to root
+* login as root
 
 update
 ```bash
@@ -131,9 +144,10 @@ chmod a+x certbot-auto
 ```
 
 now you need to tell your server where the certs are (example paths)
-```bash
-ln -s /etc/letsencrypt/live/yourdomainname.com/privkey.pem /root/okcart/cert/privkey.pem
-ln -s /etc/letsencrypt/live/yourdomainname.com/fullchain.pem /root/okcart/cert/fullchain.pem
+```js
+//server.js
+var privateKey = fs.readFileSync('/etc/letsencrypt/live/mystore.com/privkey.pem', 'utf8');
+var certificate = fs.readFileSync('/etc/letsencrypt/live/mystore.com/fullchain.pem', 'utf8');
 ```
 ---
 
