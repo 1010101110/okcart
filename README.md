@@ -180,6 +180,8 @@ shtudown -r now
 
 # Customization
 
+All the pages are in the src/components folder. Feel free to change the style of pages to your liking. Most html code is done with Vuetify so check out their docs.
+
 ## Theme
 You can edit theme colors via vuetify.
 
