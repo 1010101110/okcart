@@ -18,11 +18,18 @@
             </v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
+        <v-divider></v-divider>
+        <v-subheader>Social</v-subheader>
+        <v-list-tile avatar >
+            <a target="_blank" href="https://www.instagram.com/mystore"><img class="socialicon" src="/assets/instaicon.jpg"></a>
+            <a target="_blank" href="https://www.facebook.com/mystore"><img class="socialicon" src="/assets/fbicon.svg"></a>
+            <a target="_blank" href="https://www.reddit.com/user/mystore"><img class="socialicon" src="/assets/redditicon.jpg"></a>
+        </v-list-tile>        
       </v-list>
     </v-navigation-drawer>
     <v-toolbar class="primary" fixed dark dense clipped-left app>
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-      <v-toolbar-title>{{title}}</v-toolbar-title>
+      <v-toolbar-title>{{this.$store.state.store_name}}</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn icon dark v-on:click.native="$router.push('/cart')">
         <v-icon>shopping_cart</v-icon>{{cartQuantity}}
@@ -39,8 +46,6 @@
 </template>
 
 <script>
-import store from './../store.js'
-
 export default {
   name: 'app',
   data: ()=>{
@@ -53,25 +58,17 @@ export default {
       cursor:"auto"
     }
   },
-  created () {
-      //init the products array
-      store.dispatch('fetchProducts')
-      document.title = store.state.store_name
-  },
   computed:{
     drawer:{ 
-      get: ()=>{
-        return store.state.drawer
+      get(){
+        return this.$store.getters.drawer
       },
-      set: (z)=>{
-        store.commit('setdrawer',z)
+      set(z){
+        this.$store.commit('setdrawer',z)
       } 
     },
-    cartQuantity: ()=>{
-      return store.getters.cartQuantity;
-    },
-    title: ()=>{
-      return store.state.store_name;
+    cartQuantity(){
+      return this.$store.getters.cartQuantity;
     }
   }
 }
@@ -90,5 +87,11 @@ export default {
 }
 .fade-enter, .fade-leave-to {
   opacity: 0
+}
+.socialicon{
+	width: 20px;
+	height: 20px;
+  float: left;
+  margin: 0 5px;
 }
 </style>

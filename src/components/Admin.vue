@@ -21,8 +21,9 @@
                             <template slot="items" scope="props">
                                 <tr @click="props.expanded = !props.expanded">
                                     <td class="text-xs-right">{{props.item.sort}}</td>
-                                    <td class="text-xs-right">{{props.item._id}}</td>
-                                    <td class="text-xs-right">{{props.item.name}}</td>                                    
+                                    <td class="text-xs-right">{{props.item.name}}</td>
+                                    <td class="text-xs-right">{{props.item.stock}}</td>
+                                    <td class="text-xs-right">{{props.item.price}}</td>                                                                        
                                     <td class="text-xs-right">{{props.item.visible}}</td>
                                 </tr>
                             </template>
@@ -40,8 +41,14 @@
 
                                     <v-text-field multi-line v-model="props.item.description" name="description" label="description"></v-text-field>
 
-                                    <v-btn icon @click.native="updateProduct(props.item)"><v-icon>save</v-icon></v-btn>
-                                    <v-btn icon @click.native="deleteProduct(props.item._id)"><v-icon>delete</v-icon></v-btn>
+                                    <v-tooltip top>
+                                        <span>Update Product</span>
+                                        <v-btn icon @click.native="updateProduct(props.item)" slot="activator"><v-icon>save</v-icon></v-btn>
+                                    </v-tooltip>
+                                    <v-tooltip top>
+                                        <span>Delete Product</span>
+                                        <v-btn icon @click.native="deleteProduct(props.item._id)" slot="activator"><v-icon>delete</v-icon></v-btn>
+                                    </v-tooltip>
                                 </v-card>
                             </template>
                         </v-data-table>
@@ -51,6 +58,7 @@
                             :headers="orderheaders"
                             :items="orders"
                             item-key="_id"
+                            :pagination.sync="orderpagination"
                             hide-actions
                             expand
                         >
@@ -58,6 +66,7 @@
                                 <tr @click="props.expanded = !props.expanded">
                                     <td class="text-xs-right">{{new Date(props.item.charge.created*1000).toLocaleString()}}</td>
                                     <td class="text-xs-right">{{props.item.status}}</td>
+                                    <td class="text-xs-right">{{$store.getters.formatPrice(props.item.total)}}</td>
                                     <td class="text-xs-right">{{props.item.email}}</td>
                                     <td class="text-xs-right"> 
                                         {{props.item.address.name}}<br>
@@ -68,37 +77,38 @@
                                 </tr>
                             </template>
                             <template slot="expand" scope="props">
-                                <v-card class="pa-3">
+                                <v-card class="pa-3 grey lighten-4">
                                     <v-layout row wrap>
-                                        <v-flex xs12>
-                                            <v-btn class="primary" dark v-on:click.native="$router.push('/order/' + props.item._id)">Order details</v-btn>
-                                        </v-flex>
-                                        <v-flex xs12>
+                                        <v-flex xs12 sm6 lg4 class="px-1">
                                             <v-select
                                                     :items="orderstatus"
                                                     v-model="props.item.status"
                                                     label="status"
-                                                    class="ma-2"
                                             ></v-select>
                                         </v-flex>
-                                        <v-flex xs12 sm6>
+                                        <v-flex xs12 sm6 lg4 class="px-1">
                                             <v-text-field
                                                 v-model="props.item.trackingnum"
                                                 name="trackingnum"
                                                 label="tracking number"
-                                                class="ma-2"
                                             ></v-text-field>
                                         </v-flex>
-                                        <v-flex xs12 sm6>
+                                        <v-flex xs12 sm6 lg4 class="px-1">
                                             <v-text-field
                                                 v-model="props.item.trackingco"
                                                 name="trackingco"
                                                 label="tracking company"
-                                                class="ma-2"
                                             ></v-text-field>
                                         </v-flex>
                                         <v-flex xs12>
-                                            <v-btn icon @click.native="updateOrder(props.item)"><v-icon>save</v-icon></v-btn>
+                                            <v-tooltip top>
+                                                <span>Update Order</span>
+                                                <v-btn icon @click.native="updateOrder(props.item)" slot="activator"><v-icon>save</v-icon></v-btn>
+                                            </v-tooltip>
+                                            <v-tooltip top>
+                                                <span>Order Details</span>
+                                                <v-btn icon :href="'/order/' + props.item._id" slot="activator"><v-icon>receipt</v-icon></v-btn>
+                                            </v-tooltip>
                                         </v-flex>
                                     </v-layout>                                
                                 </v-card>
@@ -133,7 +143,6 @@
 </template>
 
 <script>
-import store from './../store.js'
 import cloneDeep from 'lodash/cloneDeep'
 
 export default {
@@ -142,16 +151,23 @@ export default {
       pass:"",
       productheaders:[
           {text:"View Order",value:"sort"},
-          {text:"_id",value:"id"},
-          {text:"Name",value:"name"},          
+          {text:"Name",value:"name"},
+          {text:"Stock",value:"stock"},
+          {text:"Price",value:"price"},          
           {text:"Visibile",value:"visible"},
       ],
       orderheaders:[
-          {text:"created",value:"charge.created"},
-          {text:"status",value:"status"},          
+          {text:"order date",value:"charge.created"},
+          {text:"status",value:"status"},
+          {text:"total",value:"total"},
           {text:"email",value:"email"},
           {text:"address",value:"address"},
       ],
+      orderpagination:{
+          sortBy:'charge.created',
+          descending:true,
+          rowsPerPage:1000
+      },
       orderstatus:["created","shipped","refunded"],
       drag:false,
       droptimeout:null,
@@ -159,34 +175,34 @@ export default {
       busy:false
   }},
   computed:{
-      products: ()=>{
-          return cloneDeep(store.getters.products);
+      products(){
+          return cloneDeep(this.$store.getters.products);
       },
-      orders: ()=>{
-          return cloneDeep(store.getters.orders);
+      orders(){
+          return cloneDeep(this.$store.getters.orders);
       },
-      authenticated: ()=>{
-          return store.getters.authenticated;
+      authenticated(){
+          return this.$store.getters.authenticated;
       },
-      loading: ()=>{
-          return store.getters.loading;
+      loading(){
+          return this.$store.getters.loading;
       }
   },
   methods:{
       auth(){
-        store.dispatch('auth',{pass:this.pass});
+        this.$store.dispatch('auth',{pass:this.pass});
       },
       addProduct(){
-        store.dispatch('addProduct');
+        this.$store.dispatch('addProduct');
       },
       updateProduct(p){
-        store.dispatch('updateProduct',p)
+        this.$store.dispatch('updateProduct',p)
       },
       deleteProduct(id){
-        store.dispatch('deleteProduct',id)
+        this.$store.dispatch('deleteProduct',id)
       },
       updateOrder(o){
-        store.dispatch('updateOrder',o)
+        this.$store.dispatch('updateOrder',o)
       },
       imagedragover(e){
           var self = this
@@ -215,10 +231,13 @@ export default {
           }
 
           //upload
-          store.dispatch('uploadFiles',formData).then(resp=>{
+          this.$store.dispatch('uploadFiles',formData)
+          .then(resp=>{
               self.busy = false
-              var paths = JSON.parse(resp.bodyText)
-              self.uploadedfiles = self.uploadedfiles.concat(paths)
+              self.uploadedfiles = self.uploadedfiles.concat(resp.data)
+          })
+          .catch(error=>{
+              console.log(error)
           })
       }
   }

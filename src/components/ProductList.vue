@@ -1,10 +1,11 @@
 <template>
     <div :key="pl_view">
+	<h3>There are delays in CARDI seeds shipment, ETA February </h3>
         <v-layout row wrap>
-            <v-flex xs12 sm6 md4 lg3 xl2 v-for="item in products" :key="item._id">
+            <v-flex xs12 sm6 md4 lg4 xl3 v-for="item in products" :key="item._id">
                 <v-card v-if="item.visible" class="ma-2">
                     <v-card-title>
-                        <router-link :to="{ name: 'product', params: { name: item.name }}">{{item.name}}</router-link>
+                        <router-link :to="`product/${$store.getters.makeLink(item.name)}`">{{item.name}}</router-link>
                     </v-card-title>
                     <v-card-media :src="item.images[0]" height="200px"></v-card-media>
                     <v-card-actions class="mt-0">
@@ -15,15 +16,13 @@
                 </v-card>
             </v-flex>
         </v-layout>
-        <v-snackbar top color="accent" timeout="2000" v-model="addsnack">
-            Added to <v-icon>shopping_cart</v-icon>
+        <v-snackbar bottom color="accent" :timeout="2000" dark v-model="addsnack">
+            item added to cart
         </v-snackbar>
     </div>
 </template>
 
 <script>
-import store from './../store.js'
-
 export default {
   name: 'ProductList',
     data:()=>{
@@ -31,14 +30,19 @@ export default {
             addsnack:false
         }
     },
+  asyncData ({ store, route }) {
+      //init the products array
+      return store.dispatch('fetchProducts')
+  },
   computed:{
-      products: ()=>{
-        return store.getters.products.filter((p)=>{return p.visible === true});
+      products(){
+        return this.$store.getters.products.filter((p)=>{return p.visible === true});
       }
   },
   methods:{
       additemtocart(item){
-        store.commit('additemtocart',item);
+        this.addsnack = true
+        this.$store.commit('additemtocart',item);
       }
   }
 }

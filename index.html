@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <title>{{ title }}</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1,minimal-ui">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <link href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=" rel="icon" type="image/x-icon" />
-    <title>ok-cart</title>
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" sizes="120x120" href="/assets/logo-120.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
+    <link rel="shortcut icon" sizes="48x48" href="/assets/logo-48.png">
+    <meta name="theme-color" content="#616161">
+    <link rel="manifest" href="/manifest.json">
     <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet" type="text/css">
   </head>
   <body>
-    <div id="app"></div>
+    <!--vue-ssr-outlet-->
     <script src="https://js.stripe.com/v3/"></script>
-    <script src="/dist/build.js"></script>
   </body>
 </html>

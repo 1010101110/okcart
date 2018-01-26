@@ -14,8 +14,6 @@
 </template>
 
 <script>
-import store from './../store.js'
-
 export default {
   name: 'Contact',
   data: ()=>{
@@ -34,7 +32,7 @@ export default {
       sendEmail(){
           if(this.$refs.form.validate()){
             this.busy = true
-            store.dispatch('sendEmail',{email:this.email,body:this.body}).then(resp=>{
+            this.$store.dispatch('sendEmail',{email:this.email,body:this.body}).then(resp=>{
                 this.busy = false
                 this.sent = resp.ok
             })

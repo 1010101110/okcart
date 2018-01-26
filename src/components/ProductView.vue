@@ -31,30 +31,62 @@
                 </v-card>
             </v-flex>
         </v-layout>
-        <v-snackbar top color="accent" timeout="2000" v-model="addsnack">
-            Added to <v-icon>shopping_cart</v-icon>
+        <v-snackbar bottom color="accent" :timeout="2000" dark v-model="addsnack">
+            item added to cart
         </v-snackbar>
     </div>
 </template>
 
 <script>
-import store from './../store.js'
-
 export default {
     name: 'ProductView',
+    title () {
+        return this.item ? this.item.name : ""
+    },
     data:()=>{
         return {
-            addsnack:false
+            addsnack:false,
+            rich:false
         }
     },
+    mounted(){
+        var unwatch = this.$watch(this.$store.getters.product,(oldv,newv) => {
+            console.log('mountedwatch',newv)
+        })
+    },
+    asyncData ({ store, route }) {
+        //init the products array
+        return store.dispatch('fetchProducts')
+    },
     computed:{
-        item:()=>{
-            return store.getters.product;
+        item(){
+            let p = this.$store.getters.product
+            
+            //when we get to client add a rich snippet for SEO
+            if(p && !this.rich && !this.$isServer){
+                let richscript = document.createElement("script")
+                richscript.type = "application/ld+json"
+                richscript.innerHTML = `
+                    {
+                    "@context": "http://schema.org/",
+                    "@type": "Product",
+                    "name": "${p.name}",
+                    "image": [
+                        "${window.location.origin + p.images[0]}",
+                    ],
+                    }`
+
+                document.head.appendChild(richscript)
+                this.rich = true
+            }
+
+            return p
         }
     },
     methods:{
       additemtocart(item){
-          store.commit('additemtocart',item);
+          this.addsnack = true
+          this.$store.commit('additemtocart',item);
       }
     }
 }
