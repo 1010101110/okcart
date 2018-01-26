@@ -7,8 +7,8 @@ it's not great, it's not bad, it's just ok 😊
 
     Webserver = node + express
     Database = nedb
-    Front end = vue
-    Style = vuetify
+    Front end = Vue + Vuex + Vuetify
+    Build = webpack
     email = nodemailer
     payments = stripe
 
@@ -25,7 +25,7 @@ pm2 stop server.js
 ```
 
 # Install
-realtime video of install (20 minutes) https://youtu.be/1dxgztOZMGc
+realtime video of install (20 minutes) 
 
 ## Dependencies 
 * external mail account [list](https://nodemailer.com/smtp/well-known/)
@@ -35,7 +35,7 @@ realtime video of install (20 minutes) https://youtu.be/1dxgztOZMGc
 
 create droplet (or any other vps)
 * ubuntu (tested on 14 and 16)
-* cheapest 512MB 20gb
+* cheapest is fine
 
 login via putty / ssh
 * should get an email with ip and root password
@@ -54,14 +54,6 @@ install nodejs
 install build tools
 ```bash
 apt-get install -y build-essential
-```
-
-add swap (or build will fail)
-```bash
-fallocate -l 1G /swapfile
-chmod 600 /swapfile
-mkswap /swapfile
-swapon /swapfile
 ```
 
 ---
@@ -94,7 +86,7 @@ npm install -g pm2
 * if using gmail you will need to enable access for [lesssecureapps](https://www.google.com/settings/security/lesssecureapps)
 
 ### config-s.json
-this is your secret server only config file. only put sensitive info  here.
+this is your secret server only config file. put secure info here.
 * stripe private(secret) key
 * Email details see nodemailer documentation
 * admin password - change this to something else!! - use: https://bcrypt-generator.com/
@@ -102,27 +94,25 @@ this is your secret server only config file. only put sensitive info  here.
 ### config-c.json
 this is your public config file.
 * store name
+* store url - this helps our requests find the server whether on client or server.
 * stripe public key
-* local
+* locale
 * currency
 * order shipping base charge - if you want every order to have a shipping charge no matter items set this to x amount, otherwise 0
 * order shipping free limit - if you want orders to ship free after x amount use this, otherwise 0
 
 ### index.html
-* meta tags to whatever you want
-* icon
-* title
+* icons
 
 ### src/components/About.vue
 Add HTML to your about page. You can use vuetify to make it pretty.
 
 ## Build the application
-Build compiles the Vue application, aka the web pages. This does not affect the server or asset files (picutes etc).
+Webpack will build our application. This combines all our source files into minified / optimized files in the dist directory.
 
 ```bash
 npm run build
-```
-if you make changes you can rebuild as much as you want. server will pick them up just need to refresh the browser.
+``` 
 
 ## Setup https
 you must have a domain name pointing to the server's ip for this to work. (set the server ip address up with your domain host) (this can take a few hours for the domain to point to your droplet)
@@ -143,7 +133,7 @@ ln -s /etc/letsencrypt/live/yourdomainname.com/fullchain.pem /root/okcart/cert/f
 
 ## Start the server
 
-run the server once, just to see if it works
+run the server once, just to see if it works, useful for debugging errors watching activity.
 ```bash
 node server.js
 ```
@@ -177,7 +167,7 @@ color codes see https://material.io/guidelines/style/color.html
 
 We mainly only use the primary color as the page is so simple, you can go through and edit each component to use other colors if you want.
 ```js
-// src/main.js
+// src/app.js
 Vue.use(Vuetify,{
     theme:{
         primary: '#616161',
@@ -186,7 +176,12 @@ Vue.use(Vuetify,{
         error: '#F44336'
     }
 })
+```
 
+You can also change the browser theme (changes mobile browser color)
+```html
+    <!-- index.html  -->
+    <meta name="theme-color" content="#616161">
 ```
 
 ## Adding custom pages
@@ -216,25 +211,18 @@ export default {
 
 2. change key and name in above to something unique. like News for a news page. It needs to be unique.
 
-3. in main.js import the file and add the page to router
+3. in router.js import the file and add the page to routes
 ```js
-// src/main.js
-
-import News from './components/News.vue'
+// src/router.js
 
 // add route to array
-
   routes: [
-    {
-        path: '/news',
-        name: 'News',
-        component: News
-    },
+    { path: '/news', component: () => import('./components/News.vue') },
   ]
 ```
 4. optional add to menu
 ```js
-// src/components/App.vue
+// src/App.vue
 
 //find menuitems array, add news entry
 //can add an icon from material icons https://material.io/icons/
@@ -251,30 +239,20 @@ npm run build
 
 follow the create new page guide above
 
-in main.js routes, change the product list view to a different path 
+in router.js routes, change the product list view to a different path  
 add your splash page to as the / path
 ```js
-  //src/main.js
-  //import new component
-  import Splash from './components/Splash.vue'
+  //src/router.js
 
   //updated routes
   routes: [
-    {
-        path: '/store',
-        name: 'ProductList',
-        component: ProductList
-    },
-    {
-        path: '/',
-        name: 'Splash',
-        component: Splash
-    },
+    { path: '/', component: () => import('./components/Splash.vue') },
+    { path: '/store', component: () => import('./components/ProductList.vue') },
 ```
 
 also you will need up update your menus with the correct path in App.vue
 ```js
-    //src/components/App.vue
+    //src/App.vue
     menuitems:[
       {icon:"home",text:"Home",href:"/"},  
       {icon:"store",text:"Store",href:"/store"},
