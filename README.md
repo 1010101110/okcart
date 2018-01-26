@@ -153,9 +153,9 @@ var certificate = fs.readFileSync('/etc/letsencrypt/live/mystore.com/fullchain.p
 
 ## Start the server
 
-run the server once, just to see if it works, useful for debugging errors watching activity.
+run the server once, useful for debugging errors / watching activity.
 ```bash
-node server.js
+npm start
 ```
 
 if everything is good lets go ahead and configure the server to run forever.
