@@ -16,8 +16,8 @@ A tiny webserver + shopping cart for developers looking to setup simple shop pag
 npm run build
 
 # run the server
-pm2 start server.js
-pm2 stop server.js
+npm start
+
 ```
 
 # Table of Contents
