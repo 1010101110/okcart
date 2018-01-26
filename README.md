@@ -2,9 +2,9 @@
 A tiny webserver + shopping cart for developers looking to setup simple shop pages quickly on virtual private servers without any SAAS fees or bloated CMS. 
 
 ### Tech
-    Webserver = node + express
-    Database = nedb
-    Front end = Vue + Vuex + Vuetify
+    Webserver = Node + Express
+    Database = NeDB
+    Front end = Vue + Vue-Router + Vuex + Vuetify
     Build = webpack
     email = nodemailer
     payments = stripe
