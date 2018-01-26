@@ -105,7 +105,7 @@ this is your public config file.
 * icons
 
 ### src/components/About.vue
-Add HTML to your about page. You can use vuetify to make it pretty.
+Add HTML to your about page. You can use [Vuetify](https://vuetifyjs.com/layout/grid) to make it pretty.
 
 ## Build the application
 Webpack will build our application. This combines all our source files into minified / optimized files in the dist directory.
@@ -113,6 +113,12 @@ Webpack will build our application. This combines all our source files into mini
 ```bash
 npm run build
 ``` 
+
+After you rebuild the application you should restart the server
+
+```bash
+pm2 restart server
+```
 
 ## Setup https
 you must have a domain name pointing to the server's ip for this to work. (set the server ip address up with your domain host) (this can take a few hours for the domain to point to your droplet)
