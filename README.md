@@ -43,6 +43,8 @@ Realtime video of install - TODO
 Dependencies 
 * external mail account [list](https://nodemailer.com/smtp/well-known/)
 * Stripe account, Api keys
+* domain name
+* virtual private server
 
 ## Server setup
 
