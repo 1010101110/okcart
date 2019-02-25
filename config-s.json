@@ -1,9 +1,11 @@
 {    
-    "stripesk":"sk_test_AbLFTbzSIGCoNxJwixfU8OgG",
+    "merchantId": "xxxxxxxxxxxx",
+    "publicKey": "xxxxxxxxxx",
+    "privateKey": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
 
     "storeEmailService":"Gmail",
-    "storeEmailUser":"asdf@gmail.com",
-    "storeEmailPass":"asdf123",
+    "storeEmailUser":"xxxxx@gmail.com",
+    "storeEmailPass":"xxxxxxxx",
 
     "adminPassHash": "$2a$10$1hFcepwZlTmpmrM.QTvZtuczVJswgTUG8pn9nlidS39rEJ/aK7U2."
 }

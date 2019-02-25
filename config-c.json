@@ -1,13 +1,15 @@
 {
-    "stripepk":"pk_test_GhV0QqLp9vthn8RTrVlfDiF9",
+    "brainAuth":"production_xxxxxxx_xxxxxxxxxxx",
+
+    "googleMerchantId":"00000000000000",
 
     "storeName":"MyStore",
     "storeURL":"https://mystore.com",
 
     "locale":"en-US",
-    "currency":"usd",
+    "currency":"USD",
 
-    "ordershipbasecharge": 100,
+    "ordershipbasecharge": 0,
     
-    "ordershipfreelimit": 5000
+    "ordershipfreelimit": 100000
 }
