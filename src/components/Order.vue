@@ -1,24 +1,32 @@
 <template>
-    <div v-if="order.charge" :key="or_view">
+    <div v-if="order.payment.transaction" key="or_view">
         <div id="order">
-        <v-layout row wrap>
+        <v-layout id="oc" row wrap>
             <v-flex xs12>
-                <h3>Order# {{order._id}}</h3>
-                Ordered On: {{new Date(order.charge.created*1000).toLocaleString()}}<br>
-                Status: {{order.status}}
+                <div class="headline">Order# {{order._id}}</div>
             </v-flex>
-            <v-flex xx4>
+            <v-flex xs12>
+                <p class="px-3">{{new Date(order.payment.transaction.createdAt).toLocaleString()}}</p>
+            </v-flex>
+            <v-flex xs12>
+                <h3>Status</h3>
+                <p class="px-3">{{order.status}} <span v-if="order.trackingco"> {{order.trackingco +  ' ' + order.trackingnum}} </span></p>
+            </v-flex>
+            <v-flex xs4>
                 <h3>Payment</h3>
-                <p>                        
-                    {{order.charge.source.brand}} {{order.charge.source.last4}}
+                <p>
+                    <img :src="paymentimg(order.payment.transaction)"> <br>
+                    {{paymentdetail(order.payment.transaction)}}
                 </p>
             </v-flex>
             <v-flex xs4>
-                <h3>Shipping</h3>
-                <p>                        
+                <h3>Address</h3>
+                <p>
                     {{order.address.name}}<br>
-                    {{order.address.street}} {{order.address.apt}}<br>
-                    {{order.address.city}}, {{order.address.state}} {{order.address.zip}}
+                    {{order.address.street}}<br>
+                    {{order.address.apt}}<br v-if="order.address.apt">
+                    {{order.address.city}}, {{order.address.state}} {{order.address.zip}}<br>
+                    {{order.address.country}}
                 </p>
             </v-flex>
             <v-flex xs4>
@@ -37,7 +45,12 @@
                         <v-flex xs8>
                             <strong>{{item.name}}</strong>
                             <div>
-                                {{$store.getters.formatPrice(item.price)}}<br>                                    
+                                <div v-if="item.selectable_fields" v-for="v in item.selectable_fields" :key="v">
+                                    {{v.selected.name}}
+                                </div>
+                            </div>
+                            <div>
+                                {{$store.getters.formatPrice(item.price)}}<br>
                                 Qty: {{item.quantity}}
                             </div>
                         </v-flex>
@@ -47,9 +60,14 @@
                     </v-layout>
                 </v-card>
             </v-flex>
+            <v-flex xs12>
+                <h3>Customer Comment</h3>
+                <div class="mytext"> {{order.comment}} </div>
+            </v-flex>
         </v-layout>
         </div>
-        <v-btn color="primary" dark v-on:click.native="print()">Print <v-icon>print</v-icon></v-btn>
+        <a @click="print" class="v-btn theme--dark primary">Print<v-icon class="ml-1">print</v-icon> </a>
+    </div>
 </template>
 
 <script>
@@ -60,44 +78,103 @@ export default {
         return store.dispatch('fetchOrder', route.params.id);
     },
     computed:{
-        order(){            
+        order(){
             return this.$store.getters.order;
         }
     },
     methods:{
         print(){
-            window.print()        
+            const prtHtml = document.getElementById('order').innerHTML;
+
+            // Open the print window
+            const WinPrint = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
+
+            WinPrint.document.write(`<!DOCTYPE html>
+            <html>
+            <head>
+                <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
+                <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+                <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+                <style>
+                    #el{
+                        margin: 25px;
+                    }
+                    .orderimg{
+                        display: none;
+                    }
+                <\/style>
+            </head>
+            <body>
+                <div id="el">
+                    <v-app>
+                        ${prtHtml}
+                    </v-app>
+                </div>
+                <script src="https://cdn.jsdelivr.net/npm/vue"><\/script>
+                <script src="https://cdn.jsdelivr.net/npm/vuetify"><\/script>
+                <script>
+                    new Vue({
+                        el: '#app',
+                        mounted: function(){
+                            window.print()
+                            window.close()
+                        }
+                    })
+                <\/script>
+            </body>
+            </html>`);
+
+            WinPrint.document.close();
+            WinPrint.focus();
+        },
+        paymentdetail(transaction){
+            let ret = ""
+
+            switch(transaction.paymentInstrumentType){
+                case "credit_card":
+                    ret = transaction.creditCard.last4
+                    break
+                case "paypal_account":
+                    ret = transaction.paypalAccount.payerEmail
+                    break
+                case "android_pay_card":
+                    ret - transaction.androidPayCard.sourceCardLast4
+                    break
+            }
+
+            return ret
+        },
+        paymentimg(transaction){
+            let ret = ""
+
+            switch(transaction.paymentInstrumentType){
+                case "credit_card":
+                    ret = transaction.creditCard.imageUrl
+                    break
+                case "paypal_account":
+                    ret = transaction.paypalAccount.imageUrl
+                    break
+                case "android_pay_card":
+                    ret = transaction.androidPayCard.imageUrl
+                    break
+            }
+
+            return ret
         }
     }
 }
 </script>
 
 <style scoped>
-#order{
-    max-width: 800px;
-}
-
-.orderimg{
-    height: 100px;
-}
-
-@media print {
-    #order{
-        background-color: white;
-        height: 100%;
-        width: 100%;
-        position: fixed;
-        top: 0;
-        left: 0;
-        margin: 0;
-        padding: 15px;
-        font-size: 14px;
-        line-height: 18px;
-        z-index: 2147483647;
+    #oc{
+        max-width: 800px;
     }
 
     .orderimg{
-        display: none;
+        height: 100px;
     }
-}
+
+    .mytext{
+        white-space: pre-wrap;
+    }
 </style>

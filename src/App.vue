@@ -2,8 +2,6 @@
   <v-app>
     <v-navigation-drawer
       clipped
-      fixed
-      disable-route-watcher
       v-model="drawer"
       app
     >
@@ -18,18 +16,28 @@
             </v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
+        <v-list-tile to="/admin" v-if="authenticated">
+          <v-list-tile-action>
+            <v-icon>build</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title>
+              Admin
+            </v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
         <v-divider></v-divider>
         <v-subheader>Social</v-subheader>
         <v-list-tile avatar >
-            <a target="_blank" href="https://www.instagram.com/mystore"><img class="socialicon" src="/assets/instaicon.jpg"></a>
+            <a target="_blank" href="https://www.instagram.com/mystore"><img class="socialicon" src="/assets/instaicon.png"></a>
             <a target="_blank" href="https://www.facebook.com/mystore"><img class="socialicon" src="/assets/fbicon.svg"></a>
             <a target="_blank" href="https://www.reddit.com/user/mystore"><img class="socialicon" src="/assets/redditicon.jpg"></a>
-        </v-list-tile>        
+        </v-list-tile>
       </v-list>
     </v-navigation-drawer>
     <v-toolbar class="primary" fixed dark dense clipped-left app>
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-      <v-toolbar-title>{{this.$store.state.store_name}}</v-toolbar-title>
+      <v-toolbar-title>{{$store.state.store_name}}</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn icon dark v-on:click.native="$router.push('/cart')">
         <v-icon>shopping_cart</v-icon>{{cartQuantity}}
@@ -59,13 +67,16 @@ export default {
     }
   },
   computed:{
-    drawer:{ 
+    drawer:{
       get(){
         return this.$store.getters.drawer
       },
       set(z){
         this.$store.commit('setdrawer',z)
-      } 
+      }
+    },
+    authenticated(){
+        return this.$store.getters.authenticated;
     },
     cartQuantity(){
       return this.$store.getters.cartQuantity;

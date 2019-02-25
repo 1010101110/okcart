@@ -7,15 +7,18 @@ Vue.use(Vuex);
 import client from './../config-c'
 
 // for ajax calls
-import axios from 'axios'
-axios.defaults.baseURL = client.storeURL
+import ax from 'axios'
+var axios = ax.create({
+    baseURL: client.storeURL,
+    timeout: 60000
+  });
 
 //global store object
 export function createStore () {
     return new Vuex.Store({
-        state: {        
+        state: {
             //data
-            products:[],        
+            products:[],
             cart:[],
             order:{},
             //helpers
@@ -23,8 +26,8 @@ export function createStore () {
             loading:false,
             pass:'',
             authenticated:false,
-            drawer:false,
-            //admin data        
+            drawer:null,
+            //admin data
             orders:[]
         },
         getters: {
@@ -35,7 +38,7 @@ export function createStore () {
             product:(state,getters)=>{
                 //one product
                 return state.products.find(product=>product.name === state.route.params.name || product.name === state.route.params.name.replace(/-/g," "))
-            },                
+            },
             cart:(state,getters)=>{
                 //list of cart items
                 return state.cart
@@ -61,15 +64,15 @@ export function createStore () {
                 }
                 return subtotal
             },
-            cartShipping:(state,getters)=>{            
+            cartShipping:(state,getters)=>{
                 let shipTotal = 0
-                //price of items in cart            
+                //price of items in cart
                 for (var i = 0; i < state.cart.length; i++) {
                     //have to do multiply/divide 100 because javascript one-cent errors with decimals
-                    shipTotal += (state.cart[i].quantity * parseInt(state.cart[i].shipping))                
+                    shipTotal += (state.cart[i].quantity * parseInt(state.cart[i].shipping))
                 }
 
-                //base order charge 
+                //base order charge
                 shipTotal += client.ordershipbasecharge
 
                 //if subtotal is less than free shipping limit then charge shipping, otherwise it's free!
@@ -113,50 +116,93 @@ export function createStore () {
                 state.products = products
             },
             additemtocart(state,product){
-                if(product.stock>0){
+                var productitem = state.products.find(function(pp){return pp._id === product._id})
+
+                if(productitem.stock>0){
                     //decrement from stock
-                    product.stock -= 1
+                    productitem.stock--
 
                     //check if product is already in cart
-                    var found = false
+                    var existing = false
                     for (var i = 0; i < state.cart.length; i++) {
                         var cartitem = state.cart[i]
+                        var found = false
 
                         //add existing item to cart
                         if (cartitem._id === product._id) {
-                            found = true                       
-                            cartitem.quantity += 1
-                            Vue.set(state.cart, i, cartitem)
+                            if(product.selectable_fields && cartitem.selectable_fields){
+                                var cartoptions = cartitem.selectable_fields.map(a => a.selected.name)
+                                var prodoptions = product.selectable_fields.map(a => a.selected.name)
+                                if(JSON.stringify(cartoptions) === JSON.stringify(prodoptions)){
+                                    found = true
+                                    //remove stock from selectable options
+                                    product.selectable_fields.forEach(function(v){
+                                        v.selected.stock--
+                                        productitem.selectable_options.forEach(function(vo){
+                                            vo.stock -= v.selected._id === vo._id ? 1 : 0
+                                        })
+                                    })
+                                }
+                            }
+
+                            if(!product.selectable_fields){
+                                found = true
+                            }
+
+                            if(found){
+                                existing = true
+                                cartitem.stock--
+                                cartitem.quantity++
+                                Vue.set(state.cart, i, cartitem)
+                            }
                         }
                     }
 
                     //add new item to cart
-                    if (!found) {
+                    if (!existing) {
                         product.quantity = 1
-                        state.cart.push(product)
+                        state.cart.push(JSON.parse(JSON.stringify(product)))
                     }
 
-                }else{
-                    //item is out of stock
-                    return;
                 }
             },
             removeitemfromcart(state,product){
+                var productitem = state.products.find(function(pp){return pp._id === product._id})
+                productitem.stock++
+
+                //first update the cart item
                 for (var i = 0; i < state.cart.length; i++) {
                     var cartitem = state.cart[i]
+                    var found = false
 
                     //remove item from cart
-                    if (cartitem._id === product._id) {                              
-                        cartitem.quantity -= 1
-                        cartitem.stock += 1
-                        if(cartitem.quantity > 0){
-                            //decrement quantity
-                            Vue.set(state.cart, i, cartitem)
-                        } else {
-                            //remove item from cart
-                            state.cart.splice(i,1)
+                    if (cartitem._id === product._id) {
+                        if(product.selectable_fields && cartitem.selectable_fields && JSON.stringify(product.selectable_fields) === JSON.stringify(cartitem.selectable_fields)){
+                            found = true
+                            //add stock to selectable optoins
+                            product.selectable_fields.forEach(function(v){
+                                v.selected.stock++
+                                productitem.selectable_options.forEach(function(vo){
+                                    vo.stock += v.selected._id === vo._id ? 1 : 0
+                                })
+                            })
                         }
-                        
+
+                        if(!product.selectable_fields){
+                            found = true
+                        }
+
+                        if(found){
+                            cartitem.quantity--
+                            cartitem.stock++
+                            if(cartitem.quantity > 0){
+                                //decrement quantity
+                                Vue.set(state.cart, i, cartitem)
+                            } else {
+                                //remove item from cart
+                                state.cart.splice(i,1)
+                            }
+                        }
                     }
                 }
             },
@@ -227,15 +273,16 @@ export function createStore () {
                 //cart data
                 const cartout = state.cart;
 
-                //checkout data            
+                //checkout data
                 const postdata = {
                     cart:  state.cart,
                     subtotal: getters.cartSubTotal,
                     shiptotal: getters.cartShipping,
                     total: getters.cartTotal,
-                    token: payload.token,
+                    nonce: payload.nonce,
                     email: payload.email,
-                    address: payload.address
+                    address: payload.address,
+                    comment: payload.comment
                 }
 
                 //create order in database
@@ -259,14 +306,14 @@ export function createStore () {
                 })
                 .catch(function(error){
                     console.log(error)
-                }).then(function(){               
+                }).then(function(){
                     commit('setloading',false)
-                });            
+                });
             },
             auth({dispatch,commit,state}, payload){
                 //show loading
                 commit('setloading',true)
-                
+
                 //send pass to server to try and authenticate
                 return axios.get('/api/auth?pass='+payload.pass)
                 .then(function(response){

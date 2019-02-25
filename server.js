@@ -30,14 +30,11 @@ var shippedemailimg = fs.readFileSync( path.join(__dirname, '/email/shipping.gif
 var refundemail = fs.readFileSync( path.join(__dirname, '/email/refundemail.html') ,{encoding:"utf8"})
 var refundemailimg = fs.readFileSync( path.join(__dirname, '/email/refund.gif'))
 
-//http server
-var http = require('http');
-
-//https server
-var https = require('https');
-//you should get your certs from lets encrypt / certbot once you have your domain setup
-var privateKey = fs.readFileSync('/etc/letsencrypt/live/mystore.com/privkey.pem', 'utf8');
-var certificate = fs.readFileSync('/etc/letsencrypt/live/mystore.com/fullchain.pem', 'utf8');
+// you should get your certs from lets encrypt / certbot once you have your domain setup
+// for testing you can use the below to generate one for localhost
+// openssl req -newkey rsa:2048 -nodes -keyout domain.key -x509 -days 365 -out domain.crt
+var privateKey = fs.readFileSync('domain.key', 'utf8');
+var certificate = fs.readFileSync('domain.crt', 'utf8');
 var credentials = { key: privateKey, cert: certificate };
 
 // Create an express server
@@ -46,6 +43,7 @@ var server = express();
 
 //formidable for file upload
 var formidable = require('formidable')
+var compress_images = require('compress-images')
 
 // Open NeDB databases
 var Datastore = require('nedb');
@@ -57,12 +55,17 @@ var bodyParser = require("body-parser");
 server.use(bodyParser.urlencoded({ extended: false }));
 server.use(bodyParser.json());
 
-//stripe for payment processing
-var stripe = require('stripe')(config_s.stripesk);
+//payment processing
+var braintree = require("braintree")
+var gateway = braintree.connect({
+    environment:  braintree.Environment.Production,
+    merchantId:   config_s.merchantId,
+    publicKey:    config_s.publicKey,
+    privateKey:   config_s.privateKey
+});
 
 // =========Server Routes=========
-
-//https redirect
+// Redirect http to https
 server.all('*', function (req, res, next){
    return req.secure ? next() : res.redirect('https://' + req.hostname + req.url);
 });
@@ -75,19 +78,40 @@ server.use('/dist', express.static(
     path.resolve(__dirname, 'dist')
 ));
 
+// Serve a blank robots.txt so google doesn't complain
+server.get('/robots.txt', function (req, res) {
+    res.type('text/plain');
+    res.send("User-agent: *\nDisallow: ");
+});
+
 //file upload
 server.post('/api/upload',function(request,response){
     var paths = []
     var form = new formidable.IncomingForm()
     form.multiples = true
+
     form.on('file',function(field,file){
-        paths.push('/assets/'+file.name)
-        fs.rename(file.path, path.join(__dirname, '/assets',file.name),err=>{
-            if(err) console.log(err)
-        })
+        paths.push('/assets/' + file.name)
+        console.log('file upload: ' + file.name)
+
+        var temppath = path.join(__dirname, '/optimized',file.name)
+        var newpath = path.join(__dirname, '/assets',file.name)
+
+        fs.renameSync(file.path,newpath)
+
+        compress_images(newpath, __dirname + '/optimized/', {compress_force: true, statistic: false, autoupdate: true}, false,
+        {jpg: {engine: 'mozjpeg', command: ['-quality', '60']}},
+        {png: {engine: 'pngquant', command: ['--quality=20-50']}},
+        {svg: {engine: 'svgo', command: '--multipass'}},
+        {gif: {engine: 'gifsicle', command: ['--colors', '64', '--use-col=web']}}, function(error, completed, statistic){
+            if(fs.existsSync(temppath)){
+                console.log('image optimized: ' + newpath)
+                fs.renameSync(temppath,newpath)
+            }
+        });
     })
     form.on('error',function(err){
-        console.log(err)
+        console.log('error in form: ' + err)
     })
     form.on('end',function(){
         response.json(paths)
@@ -95,8 +119,8 @@ server.post('/api/upload',function(request,response){
     form.parse(request)
 })
 
-//contact email 
-server.post('/api/contact',function(request,response){        
+//contact email
+server.post('/api/contact',function(request,response){
         let emailOptions ={
             replyTo: request.body.email.email,
             to: config_s.storeEmailUser,
@@ -118,7 +142,7 @@ server.get('/api/products', function (request, response) {
         if (err) console.log(err);
         docs.sort((a,b)=>{return a.sort - b.sort})
         response.json(docs);
-    })     
+    })
 });
 
 //add product to database
@@ -129,7 +153,9 @@ server.post('/api/addProduct',function (request,response) {
             stock:0,
             price:0,
             shipping:0,
-            images:["/assets/default.jpg"]
+            images:["/assets/default.jpg"],
+            selectable_fields:[],
+            selectable_options:[]
         }
         products.insert(doc,function(err,inserted){
             if(err) console.log(err)
@@ -141,7 +167,7 @@ server.post('/api/addProduct',function (request,response) {
 })
 
 //update existing product in database
-server.post('/api/updateProduct',function(request,response){    
+server.post('/api/updateProduct',function(request,response){
     if(checkpass(request.body.pass)){
         products.update({_id:request.body.product._id},
         { $set: {
@@ -152,7 +178,9 @@ server.post('/api/updateProduct',function(request,response){
             description:request.body.product.description,
             images:request.body.product.images,
             visible:request.body.product.visible,
-            sort:request.body.product.sort
+            sort:request.body.product.sort,
+            selectable_fields:request.body.product.selectable_fields,
+            selectable_options:request.body.product.selectable_options
         }},{},function(err,num){
             if(err) console.log(err)
             response.end()
@@ -187,7 +215,7 @@ server.get('/api/order/:id', function (request, response) {
     orders.findOne({_id:request.params.id}, function (err, doc) {
         if (err) console.log(err);
         response.json(doc);
-    })  
+    })
 });
 
 //return json orders find from database
@@ -196,7 +224,7 @@ server.post('/api/orders', function (request, response) {
         orders.find({},function (err,docs){
             if (err) console.log(err);
             response.json(docs);
-        })        
+        })
     }else{
         console.log('failed orders authorization')
         response.end();
@@ -204,27 +232,25 @@ server.post('/api/orders', function (request, response) {
 })
 
 //create order
-server.post('/api/checkout', function (request, response) {    
-    // Create+Send Stripe Charge (see stripe api)
-    var charge = stripe.charges.create({
-        amount: request.body.total,
-        currency: config_c.currency,
-        description: request.body.email + " order from " + config_c.storeName,
-        source: request.body.token.id
-    }, function(err, charge) {
+server.post('/api/checkout', function (request, response) {
+
+    gateway.transaction.sale({
+        amount: request.body.total/100,
+        paymentMethodNonce: request.body.nonce,
+        options: {
+            submitForSettlement: true
+          }
+    }, function (err, result){
         if(err){
-            //handle different types of errors
-            switch(err.type){
-                default:
-                    //pass error to client
-                    console.log({error:err.message});
-                    response.json({error:err.message});                    
-                break;
-            }       
-        }else{
+            console.log(err)
+            res.end('error')
+            return
+        }
+        if(result.success){
+
             //create order now that it has been charged
             let order = {}
-            order.charge = charge;
+            order.payment = result;
             order.cart = request.body.cart;
             order.email = request.body.email;
             order.address = request.body.address;
@@ -232,6 +258,7 @@ server.post('/api/checkout', function (request, response) {
             order.subtotal = request.body.subtotal;
             order.shiptotal = request.body.shiptotal;
             order.total = request.body.total;
+            order.comment = request.body.comment;
 
             orders.insert(order,function(err,newOrder){
                 if(err){
@@ -240,15 +267,36 @@ server.post('/api/checkout', function (request, response) {
                     response.json({error:err.message});
                 }else{
                     //update product stock
-                    newOrder.cart.forEach(function(element) {
-                        products.findOne({_id:element._id},function(err,doc){
+                    newOrder.cart.forEach(function(cartitem) {
+                        products.findOne({_id:cartitem._id},function(err,product){
                             if(err){
                                 console.log('error updating products after checkout')
                                 console.log(err);
-                            }else{                            
-                                products.update({_id:element._id}, {$set: {stock:doc.stock-element.quantity}},{},function(){})
+                            }else{
+                                //update the product stock
+                                products.update({_id:cartitem._id}, {$set: {stock:product.stock - cartitem.quantity}},{},function(){})
+
+                                //calculate the selectable options stock
+                                if(cartitem.selectable_fields){
+                                    cartitem.selectable_fields.forEach(function(sfield){
+                                        //if an option was selected
+                                        if(sfield.selected){
+                                            //find the matching option in the product
+                                            product.selectable_options.forEach(function(soption){
+                                                if(sfield.selected.name === soption.name){
+                                                    //remove the # qty selected
+                                                    soption.stock -= cartitem.quantity
+                                                }
+                                            })
+                                        }
+                                    }) 
+                                    //update the selectable options
+                                    products.update({_id:cartitem._id}, {$set: {selectable_options:product.selectable_options}},{},function(){})
+                                }
+
+
                             }
-                        })                        
+                        })
                     }, this);
 
                     //pass completed order back to client
@@ -259,7 +307,7 @@ server.post('/api/checkout', function (request, response) {
 
                     //order
                     emailhtml = emailhtml.replace('%%storename%%',config_c.storeName)
-                    emailhtml = emailhtml.replace('%%date%%', new Date(newOrder.charge.created*1000).toLocaleString())
+                    emailhtml = emailhtml.replace('%%date%%', new Date().toLocaleString())
                     emailhtml = emailhtml.replace('%%orderlink%%','https://' + request.get('host') + '/order/' + newOrder._id)
 
                     //send email confirmation to user
@@ -285,21 +333,28 @@ server.post('/api/checkout', function (request, response) {
                     let semailoptions = emailOptions
                     semailoptions.from = config_s.storeEmailUser
                     semailoptions.to = config_s.storeEmailUser
+                    semailoptions.replyTo = order.email
                     semailoptions.subject = 'New ' + config_c.storeName + ' order'
                     transporter.sendMail(semailoptions,(err,info)=>{
                         if(err) console.log(err)
                     })
 
                 }
-            })            
+            })
+
+        }else{
+            console.log(result)
+            console.log(err)
+            res.end('error')
         }
-    });
+    })
+
 })
 
 //update existing order in database
 server.post('/api/updateOrder',function(request,response){
     if(checkpass(request.body.pass)){
-        //check for status change    
+        //check for status change
         orders.findOne({_id:request.body.order._id},(err,doc)=>{
             //formats prices in emails
             let currency = Intl.NumberFormat(config_c.locale, {
@@ -317,7 +372,7 @@ server.post('/api/updateOrder',function(request,response){
                 emailhtml = emailhtml.replace('%%date%%', new Date().toDateString())
                 emailhtml = emailhtml.replace('%%shippingco%%',request.body.order.trackingco ? request.body.order.trackingco : "")
                 emailhtml = emailhtml.replace('%%tracking%%',request.body.order.trackingnum ? request.body.order.trackingnum : "")
-                
+
                 let emailOptions ={
                     from: config_s.storeEmailUser,
                     to: request.body.order.email,
@@ -335,23 +390,22 @@ server.post('/api/updateOrder',function(request,response){
                 transporter.sendMail(emailOptions,(err,info)=>{
                     if(err) console.log(err)
                 })
-                
+
             }
 
             //order is refunded!
             if((doc.status === "created" || doc.status === "shipped") && request.body.order.status === "refunded"){
-                //refund stripe
-                stripe.refunds.create({
-                    charge: request.body.order.charge.id
-                },(err,refund)=>{
-                    if(err){
+                //refund braintree
+                gateway.transaction.refund(request.body.order.payment.transaction.id,(err,result)=>{
+                    if(err || !result.success){
                         console.log(err)
+                        console.log(result.transaction.status)
                     }else{
                         //send email
                         let emailhtml = refundemail
                         emailhtml = emailhtml.replace('%%storename%%',config_c.storeName)
                         emailhtml = emailhtml.replace('%%date%%', new Date().toDateString())
-                        emailhtml = emailhtml.replace('%%amount%%',currency.format(refund.amount/100))
+                        emailhtml = emailhtml.replace('%%amount%%',currency.format(result.transaction.amount))
                         emailhtml = emailhtml.replace('%%orderlink%%','https://' + request.get('host') + '/order/' + request.body.order._id)
 
                         let emailOptions ={
@@ -367,10 +421,10 @@ server.post('/api/updateOrder',function(request,response){
                                 }
                             ]
                         }
-            
+
                         transporter.sendMail(emailOptions,(err,info)=>{
                             if(err) console.log(err)
-                        })                
+                        })
                     }
                 })
             }
@@ -432,20 +486,21 @@ const bundle = require('./dist/vue-ssr-server-bundle.json')
 const clientManifest = require('./dist/vue-ssr-client-manifest.json')
 
 const renderer = createBundleRenderer(bundle, {
-  template, 
-  clientManifest 
+  template,
+  clientManifest
 })
 
 // inside a server handler...
 server.get('*', (req, res) => {
-    const context = { 
+    const context = {
       title: config_c.storeName  ,
-      url: req.url 
+      url: req.url
     }
   // No need to pass an app here because it is auto-created by
   // executing the bundle. Now our server is decoupled from our Vue app!
   renderer.renderToString(context, (err, html) => {
     if (err) {
+        console.log(req.url)
         console.log(err)
         if (err.code === 404) {
           res.status(404).end('Page not found')
@@ -459,11 +514,14 @@ server.get('*', (req, res) => {
 })
 
 //=========HTTP / HTTPS server=========
-http.createServer(server).listen(80, function (err) {
-    if (err) throw err;
-    console.log('started http server')
-});
+var http = require('http');
+var https = require('https');
+
 https.createServer(credentials, server).listen(443, function (err) {
    if (err) throw err;
    console.log('started https server')
+});
+http.createServer(server).listen(80, function (err) {
+    if (err) throw err;
+    console.log('started http server')
 });
