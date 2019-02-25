@@ -7,7 +7,7 @@ A tiny webserver + shopping cart for developers looking to setup simple shop pag
     Front end = Vue + Vue-Router + Vuex + Vuetify
     Build = webpack
     email = nodemailer
-    payments = stripe
+    payments = braintree
 
 ### Commands
 
@@ -42,9 +42,8 @@ Realtime video of install - TODO
 
 Dependencies 
 * external mail account [list](https://nodemailer.com/smtp/well-known/)
-* Stripe account, Api keys
-* domain name
-* virtual private server
+* Braintree account
+* Paypal account
 
 ## Server setup
 
@@ -92,17 +91,18 @@ npm install -g pm2
 
 ## Config
 
-### stripe account
-* [Login](https://dashboard.stripe.com/) to your stripe account 
-* go to the API menu
-* Standard API keys: get the plublic and secret key
+### Braintree account
+* [Login](https://www.braintreegateway.com/login) to your braintree account 
+* Account > Merchange Account Info - get Merchant ID
+* Settings > API Keys - get public, private, and tokenization key
 
 ### mail account
 * if using gmail you will need to enable access for [lesssecureapps](https://www.google.com/settings/security/lesssecureapps)
+* *note you might get critical security error email, you will have to approve the new server IP on first use*
 
 ### config-s.json
 this is your secret server only config file. put secure info here.
-* stripe private(secret) key
+* braintree merchant details
 * Email details see nodemailer documentation
 * admin password - change this to something else!! - use: https://bcrypt-generator.com/
 
@@ -110,7 +110,7 @@ this is your secret server only config file. put secure info here.
 this is your public config file.
 * store name
 * store url - this helps our requests find the server whether on client or server.
-* stripe public key
+* braintree token
 * locale
 * currency
 * order shipping base charge - if you want every order to have a shipping charge no matter items set this to x amount, otherwise 0
