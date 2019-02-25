@@ -20,7 +20,7 @@
             <v-flex xs12>
                 <v-card class="ma-2 pa-2">
                     Want to know when we update stock or release new items?<br>
-                    Join the <a href="https://goo.gl/forms/iOYdI5K6A7A44SVI2">mailing list</a>
+                    Join the <a href="https://goo.gl/forms/xxxxxxxxxx">mailing list</a>
                 <v-card>
             </v-flex>
         </v-layout>
