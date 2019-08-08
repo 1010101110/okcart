@@ -10,9 +10,6 @@
             </v-form>
             <span v-else> <v-icon color="green">check</v-icon> Email sent</span>
         </transition>
-        <v-snackbar top color="red" v-model="err" dark>
-            Error sending mail <v-icon color="white">error</v-icon>
-        </v-snackbar>
     </div>
 </template>
 
@@ -31,8 +28,7 @@ export default {
           emailRules:[
             (v) => !!v || 'E-mail is required',
             (v) => /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail must be valid'
-          ],
-          err:false
+          ]
       }
   },
   methods:{
@@ -41,11 +37,7 @@ export default {
             this.busy = true
             this.$store.dispatch('sendEmail',{email:this.email,body:this.body}).then(resp=>{
                 this.busy = false
-                if(resp.status === 200){
-                    this.sent = true
-                }else{
-                    this.err = true
-                }                
+                this.sent = resp.status === 200
             })
           }
       }

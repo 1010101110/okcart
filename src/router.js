@@ -15,6 +15,7 @@ export function createRouter () {
         { path: '/admin', component: () => import('./components/Admin.vue') },
         { path: '/about', component: () => import('./components/About.vue') },
         { path: '/contact', component: () => import('./components/Contact.vue') },
+        { path: '/policy', component: () => import('./components/Policy.vue') },
       ]  
     })
 }

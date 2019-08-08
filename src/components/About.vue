@@ -1,5 +1,5 @@
 <template>
-    <div :key="about_view" class="about">
+    <div key="about_view" class="about">
 
 	<v-container fluid grid-list-sm>
 		<v-layout row wrap>
@@ -14,7 +14,10 @@
 
 <script>
 export default {
-  name: 'About'
+	name: 'About',
+	mounted:function(){
+		document.title = 'About'
+	},
 }
 </script>
 

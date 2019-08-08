@@ -24,7 +24,7 @@
                 <v-card>
             </v-flex>
         </v-layout>
-        <v-snackbar top color="deep-purple" v-model="addsnack" dark>
+        <v-snackbar top color="deep-purple" v-model="addsnack">
             Added to cart <v-icon color="white">shopping_cart</v-icon>
         </v-snackbar>
     </div>

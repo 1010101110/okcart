@@ -10,8 +10,8 @@
     "build:server": "cross-env NODE_ENV=production webpack --config build/webpack.server.config.js --progress --hide-modules"
   },
   "dependencies": {
-    "axios": "^0.17.1",
-    "bcrypt": "^2.0.1",
+    "axios": "^0.19.0",
+    "bcrypt": "^3.0.6",
     "body-parser": "^1.18.3",
     "cross-env": "^5.2.0",
     "es6-promise": "^4.2.5",
@@ -20,7 +20,7 @@
     "formidable": "^1.2.1",
     "nedb": "*",
     "nodemailer": "^4.6.8",
-    "vue": "^2.5.17",
+    "vue": "^2.5.22",
     "vue-resource": "^1.5.1",
     "vue-router": "*",
     "vue-server-renderer": "^2.5.17",
@@ -29,14 +29,15 @@
     "vuex-router-sync": "*"
   },
   "devDependencies": {
+    "autoprefixer": "^9.6.1",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "babel-preset-env": "^1.7.0",
     "braintree": "^2.12.0",
     "braintree-web-drop-in": "^1.13.0",
-    "compress-images": "^1.4.6",
-    "css-loader": "^0.25.0",
+    "compress-images": "^1.5.8",
+    "css-loader": "^0.28.11",
     "file-loader": "^0.9.0",
     "friendly-errors-webpack-plugin": "^1.7.0",
     "rimraf": "^2.6.2",
@@ -46,7 +47,7 @@
     "url-loader": "^0.6.2",
     "vue-loader": "^13.7.3",
     "vue-style-loader": "^3.1.2",
-    "vue-template-compiler": "^2.5.17",
+    "vue-template-compiler": "^2.5.22",
     "webpack": "^3.12.0",
     "webpack-dev-middleware": "^1.12.0",
     "webpack-hot-middleware": "^2.24.0",
@@ -57,5 +58,8 @@
     "globals": {
       "window": true
     }
-  }
+  },
+  "browserslist": [
+    "last 2 versions"
+  ]
 }

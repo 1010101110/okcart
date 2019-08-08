@@ -1,7 +1,7 @@
 <template>
-    <div v-if="order.payment.transaction" key="or_view">
-        <div id="order">
-        <v-layout id="oc" row wrap>
+    <div key="or_view">
+        <div id="order" v-if="order">
+        <v-layout v-if="order.payment" row wrap>
             <v-flex xs12>
                 <div class="headline">Order# {{order._id}}</div>
             </v-flex>
@@ -10,7 +10,7 @@
             </v-flex>
             <v-flex xs12>
                 <h3>Status</h3>
-                <p class="px-3">{{order.status}} <span v-if="order.trackingco"> {{order.trackingco +  ' ' + order.trackingnum}} </span></p>
+                <p class="px-3">{{order.status}} {{new Date(order.updatedOn).toLocaleString()}} <span v-if="order.trackingco"> {{order.trackingco +  ' ' + order.trackingnum}} </span></p>
             </v-flex>
             <v-flex xs4>
                 <h3>Payment</h3>
@@ -36,6 +36,30 @@
                     Total: {{$store.getters.formatPrice(order.total)}}
                 </p>
             </v-flex>
+        </v-layout>
+        <v-layout v-else row wrap>
+            <v-flex xs12>
+                <div class="headline">Order# {{order._id}}</div>
+            </v-flex>
+            <v-flex xs12>
+                <p class="px-3">{{new Date(order.createdOn).toLocaleString()}}</p>
+            </v-flex>
+            <v-flex xs12>
+                <h3>Status</h3>
+                <p class="px-3">{{order.status}} {{new Date(order.updatedOn).toLocaleString()}} <span v-if="order.trackingco"> {{order.trackingco +  ' ' + order.trackingnum}} </span></p>
+            </v-flex>
+            <v-flex xs12>
+                <h3>Address</h3>
+                <p>
+                    {{order.address.name}}<br>
+                    {{order.address.street}}<br>
+                    {{order.address.apt}}<br v-if="order.address.apt">
+                    {{order.address.city}}, {{order.address.state}} {{order.address.zip}}<br>
+                    {{order.address.country}}
+                </p>
+            </v-flex>
+        </v-layout>
+        <v-layout row wrap>
             <v-flex xs12>
                 <h3>Cart</h3>
             </v-flex>
@@ -166,7 +190,7 @@ export default {
 </script>
 
 <style scoped>
-    #oc{
+    #order{
         max-width: 800px;
     }
 

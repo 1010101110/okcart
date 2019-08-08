@@ -30,11 +30,12 @@ var shippedemailimg = fs.readFileSync( path.join(__dirname, '/email/shipping.gif
 var refundemail = fs.readFileSync( path.join(__dirname, '/email/refundemail.html') ,{encoding:"utf8"})
 var refundemailimg = fs.readFileSync( path.join(__dirname, '/email/refund.gif'))
 
-// you should get your certs from lets encrypt / certbot once you have your domain setup
-// for testing you can use the below to generate one for localhost
-// openssl req -newkey rsa:2048 -nodes -keyout domain.key -x509 -days 365 -out domain.crt
-var privateKey = fs.readFileSync('domain.key', 'utf8');
-var certificate = fs.readFileSync('domain.crt', 'utf8');
+//https server
+var http = require('http');
+var https = require('https');
+//you should get your certs from lets encrypt / certbot once you have your domain setup
+var privateKey = fs.readFileSync('/etc/letsencrypt/live/xxx/privkey.pem', 'utf8');
+var certificate = fs.readFileSync('/etc/letsencrypt/live/xxx/fullchain.pem', 'utf8');
 var credentials = { key: privateKey, cert: certificate };
 
 // Create an express server
@@ -232,123 +233,128 @@ server.post('/api/orders', function (request, response) {
 })
 
 //create order
-server.post('/api/checkout', function (request, response) {
+function createOrder(request,response,payment){
+    //create order now that it has been charged
+    let order = {}
+    order.createdOn = new Date();
+    order.updatedOn = new Date();
+    order.payment = payment;
+    order.cart = request.body.cart;
+    order.email = request.body.email;
+    order.address = request.body.address;
+    order.status = "created";
+    order.subtotal = request.body.subtotal;
+    order.shiptotal = request.body.shiptotal;
+    order.total = request.body.total;
+    order.comment = request.body.comment;
 
-    gateway.transaction.sale({
-        amount: request.body.total/100,
-        paymentMethodNonce: request.body.nonce,
-        options: {
-            submitForSettlement: true
-          }
-    }, function (err, result){
+    orders.insert(order,function(err,newOrder){
         if(err){
-            console.log(err)
-            res.end('error')
-            return
-        }
-        if(result.success){
+            //pass error to client
+            console.log({error:err.message});
+            response.json({error:err.message});
+        }else{
+            //update product stock
+            newOrder.cart.forEach(function(cartitem) {
+                products.findOne({_id:cartitem._id},function(err,product){
+                    if(err){
+                        console.log('error updating products after checkout')
+                        console.log(err);
+                    }else{
+                        //update the product stock
+                        products.update({_id:cartitem._id}, {$set: {stock:product.stock - cartitem.quantity}},{},function(){})
 
-            //create order now that it has been charged
-            let order = {}
-            order.payment = result;
-            order.cart = request.body.cart;
-            order.email = request.body.email;
-            order.address = request.body.address;
-            order.status = "created";
-            order.subtotal = request.body.subtotal;
-            order.shiptotal = request.body.shiptotal;
-            order.total = request.body.total;
-            order.comment = request.body.comment;
-
-            orders.insert(order,function(err,newOrder){
-                if(err){
-                    //pass error to client
-                    console.log({error:err.message});
-                    response.json({error:err.message});
-                }else{
-                    //update product stock
-                    newOrder.cart.forEach(function(cartitem) {
-                        products.findOne({_id:cartitem._id},function(err,product){
-                            if(err){
-                                console.log('error updating products after checkout')
-                                console.log(err);
-                            }else{
-                                //update the product stock
-                                products.update({_id:cartitem._id}, {$set: {stock:product.stock - cartitem.quantity}},{},function(){})
-
-                                //calculate the selectable options stock
-                                if(cartitem.selectable_fields){
-                                    cartitem.selectable_fields.forEach(function(sfield){
-                                        //if an option was selected
-                                        if(sfield.selected){
-                                            //find the matching option in the product
-                                            product.selectable_options.forEach(function(soption){
-                                                if(sfield.selected.name === soption.name){
-                                                    //remove the # qty selected
-                                                    soption.stock -= cartitem.quantity
-                                                }
-                                            })
+                        //calculate the selectable options stock
+                        if(cartitem.selectable_fields){
+                            cartitem.selectable_fields.forEach(function(sfield){
+                                //if an option was selected
+                                if(sfield.selected){
+                                    //find the matching option in the product
+                                    product.selectable_options.forEach(function(soption){
+                                        if(sfield.selected.name === soption.name){
+                                            //remove the # qty selected
+                                            soption.stock -= cartitem.quantity
                                         }
-                                    }) 
-                                    //update the selectable options
-                                    products.update({_id:cartitem._id}, {$set: {selectable_options:product.selectable_options}},{},function(){})
+                                    })
                                 }
-
-
-                            }
-                        })
-                    }, this);
-
-                    //pass completed order back to client
-                    response.json({order:newOrder})
-
-                    //html email
-                    let emailhtml = orderemail
-
-                    //order
-                    emailhtml = emailhtml.replace('%%storename%%',config_c.storeName)
-                    emailhtml = emailhtml.replace('%%date%%', new Date().toLocaleString())
-                    emailhtml = emailhtml.replace('%%orderlink%%','https://' + request.get('host') + '/order/' + newOrder._id)
-
-                    //send email confirmation to user
-                    let emailOptions ={
-                        from: config_s.storeEmailUser,
-                        to: order.email,
-                        subject: config_c.storeName + ' order confirmation',
-                        html: emailhtml,
-                        attachments: [
-                            {
-                                filename: 'okok.gif',
-                                path: __dirname + '/email/orderemailimage.gif',
-                                cid: 'orderimage@okok.com'
-                            }
-                        ]
+                            })
+                            //update the selectable options
+                            products.update({_id:cartitem._id}, {$set: {selectable_options:product.selectable_options}},{},function(){})
+                        }
                     }
+                })
+            }, this);
 
-                    transporter.sendMail(emailOptions,(err,info)=>{
-                        if(err) console.log(err)
-                    })
+            //pass completed order back to client
+            response.json({order:newOrder})
 
-                    //send mail to store owner that new order created for them to process
-                    let semailoptions = emailOptions
-                    semailoptions.from = config_s.storeEmailUser
-                    semailoptions.to = config_s.storeEmailUser
-                    semailoptions.replyTo = order.email
-                    semailoptions.subject = 'New ' + config_c.storeName + ' order'
-                    transporter.sendMail(semailoptions,(err,info)=>{
-                        if(err) console.log(err)
-                    })
+            //html email
+            let emailhtml = orderemail
 
-                }
+            //order
+            emailhtml = emailhtml.replace('%%storename%%',config_c.storeName)
+            emailhtml = emailhtml.replace('%%date%%', new Date().toLocaleString())
+            emailhtml = emailhtml.replace('%%orderlink%%','https://' + request.get('host') + '/order/' + newOrder._id)
+
+            //send email confirmation to user
+            let emailOptions ={
+                from: config_s.storeEmailUser,
+                to: order.email,
+                subject: config_c.storeName + ' order confirmation',
+                html: emailhtml,
+                attachments: [
+                    {
+                        filename: 'okok.gif',
+                        path: __dirname + '/email/orderemailimage.gif',
+                        cid: 'orderimage@okok.com'
+                    }
+                ]
+            }
+
+            transporter.sendMail(emailOptions,(err,info)=>{
+                if(err) console.log(err)
             })
 
-        }else{
-            console.log(result)
-            console.log(err)
-            res.end('error')
+            //send mail to store owner that new order created for them to process
+            let semailoptions = emailOptions
+            semailoptions.from = config_s.storeEmailUser
+            semailoptions.to = config_s.storeEmailUser
+            semailoptions.replyTo = order.email
+            semailoptions.subject = 'New order - ' + order.email
+            transporter.sendMail(semailoptions,(err,info)=>{
+                if(err) console.log(err)
+            })
         }
     })
+}
 
+server.post('/api/checkout', function (request, response) {
+    if(request.body.nonce == null){
+        //no payment type (because order is 0 total) so don't process payment
+        createOrder(request,response,null)
+    } else {
+        //create braintree transaction
+        gateway.transaction.sale({
+            amount: request.body.total/100,
+            paymentMethodNonce: request.body.nonce,
+            options: {
+                submitForSettlement: true
+              }
+        }, function (err, result){
+            if(err){
+                console.log(err)
+                res.end('error')
+                return
+            }
+            if(result.success){
+                createOrder(request,response,result)
+            }else{
+                console.log(result)
+                console.log(err)
+                res.end('error')
+            }
+        })
+    }
 })
 
 //update existing order in database
@@ -433,6 +439,7 @@ server.post('/api/updateOrder',function(request,response){
         //update order in db
         orders.update({_id:request.body.order._id},
         { $set: {
+            updatedOn: new Date(),
             status:request.body.order.status,
             trackingnum:request.body.order.trackingnum,
             trackingco:request.body.order.trackingco
@@ -514,9 +521,6 @@ server.get('*', (req, res) => {
 })
 
 //=========HTTP / HTTPS server=========
-var http = require('http');
-var https = require('https');
-
 https.createServer(credentials, server).listen(443, function (err) {
    if (err) throw err;
    console.log('started https server')

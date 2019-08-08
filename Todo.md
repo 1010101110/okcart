@@ -13,16 +13,8 @@ progress
 
 # low
 
-product
-
-    variations
-
 shipping
 
     add state, country dropdowns?
     integrate with shipping provider?   
 
-payment methods
-
-    add other payment methods? paypal, amazon, google/apple wallet
-    add crypto payments?

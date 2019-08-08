@@ -10,11 +10,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
     <link rel="shortcut icon" sizes="48x48" href="/assets/logo-48.png">
     <meta name="theme-color" content="#616161">
-    <link rel="manifest" href="/manifest.json">
     <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet" type="text/css">
   </head>
   <body>
     <!--vue-ssr-outlet-->
-    <script src="https://js.stripe.com/v3/"></script>
   </body>
 </html>
+
+<script>
+  var ua = window.navigator.userAgent;
+  var msie = ua.indexOf("MSIE ");
+  var trident = ua.indexOf('Trident/');
+
+  if (msie > 0 || trident > 0)  // If Internet Explorer show warning
+  {
+      alert('this website doesn\'t work in Internet Explorer \r\nUpdate to a modern browser like Chrome, Edge, or Firefox.');
+  }
+  </script>

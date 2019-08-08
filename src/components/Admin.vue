@@ -10,7 +10,7 @@
                 <v-tab-item key="products">
 
                     <v-btn color="primary" @click.native="addProduct()">Add Product</v-btn>
-                    <v-text-field class="my-2" v-model="productsearch" placeholder="Search" prepend-icon="search" single-line hide-details></v-text-field>
+                    <v-text-field v-model="productsearch" placeholder="Search" prepend-icon="search" single-line hide-details></v-text-field>
                     <v-data-table
                         :headers="productheaders"
                         :items="products"
@@ -83,7 +83,7 @@
                     </v-data-table>
                 </v-tab-item>
                 <v-tab-item key="orders">
-                    <v-text-field class="my-2" v-model="ordersearch" placeholder="Search" prepend-icon="search" single-line hide-details></v-text-field>
+                    <v-text-field v-model="ordersearch" placeholder="Search" prepend-icon="search" single-line hide-details></v-text-field>
                     <v-data-table
                         :headers="orderheaders"
                         :items="orders"
@@ -95,7 +95,7 @@
                     >
                         <template slot="items" scope="props">
                             <tr @click="props.expanded = !props.expanded">
-                                <td class="text-xs-right">{{new Date(props.item.payment.transaction.createdAt).toLocaleString()}}</td>
+                                <td class="text-xs-right">{{new Date(props.item.createdOn).toLocaleString()}}</td>
                                 <td class="text-xs-right">{{props.item.status}}</td>
                                 <td class="text-xs-right">{{$store.getters.formatPrice(props.item.total)}}</td>
                                 <td class="text-xs-right">{{props.item.email}}</td>
@@ -196,14 +196,14 @@ export default {
           {text:"Visibile",value:"visible"},
       ],
       orderheaders:[
-          {text:"order date",value:"payment.transaction.createdAt"},
+          {text:"order date",value:"createdOn"},
           {text:"status",value:"status"},
           {text:"total",value:"total"},
           {text:"email",value:"email"},
           {text:"address",value:"address"},
       ],
       orderpagination:{
-          sortBy:'payment.transaction.createdAt',
+          sortBy:'createdOn',
           descending:true,
           rowsPerPage:50
       },
