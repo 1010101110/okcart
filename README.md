@@ -104,7 +104,7 @@ npm install -g pm2
 this is your secret server only config file. put secure info here.
 * braintree merchant details
 * Email details see nodemailer documentation
-* admin password - change this to something else!! - use: https://bcrypt-generator.com/
+* admin password - change this to something else!! - use: https://www.browserling.com/tools/bcrypt
 
 ### config-c.json
 this is your public config file.
