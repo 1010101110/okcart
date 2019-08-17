@@ -16,7 +16,7 @@ A tiny webserver + shopping cart for developers looking to setup simple shop pag
 npm run build
 
 # run the server
-npm start
+pm2 start server.js
 
 ```
 
@@ -67,7 +67,7 @@ install nodejs
 
 install build tools
 ```bash
-apt-get install -y build-essential
+apt-get install -y build-essential libjpeg-dev
 ```
 
 ---
