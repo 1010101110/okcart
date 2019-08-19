@@ -38,7 +38,7 @@ pm2 start server.js
 
 
 # Install
-Realtime video of install - TODO
+Realtime video of install - https://youtu.be/JONrKYcsnEw
 
 Dependencies 
 * external mail account [list](https://nodemailer.com/smtp/well-known/)
