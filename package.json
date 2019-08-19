@@ -23,7 +23,7 @@
     "vue": "^2.5.22",
     "vue-resource": "^1.5.1",
     "vue-router": "*",
-    "vue-server-renderer": "^2.5.17",
+    "vue-server-renderer": "^2.5.22",
     "vuetify": "^1.2.3",
     "vuex": "*",
     "vuex-router-sync": "*"
