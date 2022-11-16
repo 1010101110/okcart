@@ -38,7 +38,7 @@
     "braintree-web-drop-in": "^1.13.0",
     "compress-images": "^1.5.8",
     "css-loader": "^0.28.11",
-    "file-loader": "^0.9.0",
+    "file-loader": "^6.2.0",
     "friendly-errors-webpack-plugin": "^1.7.0",
     "rimraf": "^2.6.2",
     "style-loader": "^0.19.0",
